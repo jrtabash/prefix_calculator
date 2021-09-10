@@ -5,11 +5,11 @@ Work in Progress ... Command line prefix calculator, supporting:
   ```
   pi, tau, e
   ```
-- User variables
+- User variables (define, set, get)
   ```
-  var <name> <init> := define variable
-  = <name> <value> := set variable
-  <name> := get variable
+  define: var <name> <init>
+  set: = <name> <value>
+  get: <name>
   ```
 - Binary operations
   ```
