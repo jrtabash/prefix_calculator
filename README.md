@@ -27,6 +27,10 @@ Command line prefix calculator. Supported features:
   ceil, floor, round,
   neg, not
   ```
+- REPL Commands
+  ```
+  :quit - Exit calculator
+  ```
 - Example Inputs
   ```
   var x 5
@@ -34,6 +38,7 @@ Command line prefix calculator. Supported features:
   * 2 + x 20
   sqrt + ^ 3 2 ^ 4 2
   max 1 2
+  :quit
   ```
 - Example Corresponding Outputs
   ```
