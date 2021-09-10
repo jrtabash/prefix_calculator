@@ -1,11 +1,11 @@
 # prefix_calculator
-Work in Progress ... Command line prefix calculator, supporting:
+Command line prefix calculator. Supported features:
 - Numeric (e.g. 10.5) and boolean (e.g. true, false) values
 - Constants:
   ```
   pi, tau, e
   ```
-- User variables (define, set, get)
+- User variables
   ```
   define: var <name> <init>
   set: = <name> <value>
@@ -27,15 +27,19 @@ Work in Progress ... Command line prefix calculator, supporting:
   ceil, floor, round,
   neg, not
   ```
-- Example Input
+- Example Inputs
   ```
   var x 5
   + x 10
   * 2 + x 20
+  sqrt + ^ 3 2 ^ 4 2
+  max 1 2
   ```
-- Example Output
+- Example Corresponding Outputs
   ```
   5
   15
   50
+  5
+  2
   ```

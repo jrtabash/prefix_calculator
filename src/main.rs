@@ -5,18 +5,11 @@ pub mod pcalc_environment;
 pub mod pcalc_code;
 pub mod pcalc_lexer;
 pub mod pcalc_parser;
+pub mod pcalc_repl;
 
-use pcalc_environment::Environment;
-use pcalc_parser::Parser;
+use pcalc_repl::REPL;
 
 fn main() {
-    let mut env = Environment::new();
-    let mut parser = Parser::new();
-
-    parser.parse("var x 3").unwrap().eval(&mut env).unwrap();
-    parser.parse("var y 4").unwrap().eval(&mut env).unwrap();
-    parser.parse("var z sqrt + ^ x 2 ^ y 2").unwrap().eval(&mut env).unwrap();
-    println!("x = {}", env.get("x").unwrap());
-    println!("y = {}", env.get("y").unwrap());
-    println!("z = {}", env.get("z").unwrap());
+    let mut repl = REPL::new();
+    repl.run();
 }
