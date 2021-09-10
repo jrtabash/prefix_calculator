@@ -3,9 +3,11 @@ Work in Progress ... Command line prefix calculator, supporting:
 - Numeric (e.g. 10.5) and boolean (e.g. true, false) values
 - Constants: "pi", "tau", "e"
 - User variables
-  - "var <name> <init>" := define variable
-  - "= <name> <value>" := set variable
-  - "<name>" := get variable
+  ```
+  "var <name> <init>" := define variable
+  "= <name> <value>" := set variable
+  "<name>" := get variable
+  ```
 - Binary operations
   ```
   "+", "-", "*", "/", "%", "^",
