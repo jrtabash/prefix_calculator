@@ -105,25 +105,15 @@ impl Lexer {
     fn make_token_types() -> HashMap<String, TokenType> {
         let mut table: HashMap<String, TokenType> = HashMap::new();
 
-        let bops = vec!["+", "-", "*", "/", "%", "^",
-                        "max", "min",
-                        "==", "!=", "<", "<=", ">", ">=",
-                        "and", "or"];
-        for sym in bops.iter() {
+        for sym in binary_ops().iter() {
             table.insert(String::from(*sym), TokenType::BinaryOp);
         }
 
-        let uops = vec!["sqrt", "exp", "exp2", "ln", "log2", "log10",
-                        "sin", "cos", "tan", "sinh", "cosh", "tanh",
-                        "asin", "acos", "atan", "asinh", "acosh", "atanh",
-                        "sign", "abs", "recip", "fract", "trunc",
-                        "ceil", "floor", "round",
-                        "neg", "not"];
-        for sym in uops.iter() {
+        for sym in unary_ops().iter() {
             table.insert(String::from(*sym), TokenType::UnaryOp);
         }
 
-        for sym in vec!["pi", "tau", "e"].iter() {
+        for sym in constants().iter() {
             table.insert(String::from(*sym), TokenType::Const);
         }
 
@@ -137,6 +127,34 @@ impl Lexer {
 }
 
 // --------------------------------------------------------------------------------
+// NameList
+
+type NameList<'a> = Vec<&'a str>;
+
+#[inline(always)]
+fn binary_ops() -> NameList<'static> {
+    vec!["+", "-", "*", "/", "%", "^",
+         "max", "min",
+         "==", "!=", "<", "<=", ">", ">=",
+         "and", "or"]
+}
+
+#[inline(always)]
+fn unary_ops() -> NameList<'static> {
+    vec!["sqrt", "exp", "exp2", "ln", "log2", "log10",
+         "sin", "cos", "tan", "sinh", "cosh", "tanh",
+         "asin", "acos", "atan", "asinh", "acosh", "atanh",
+         "sign", "abs", "recip", "fract", "trunc",
+         "ceil", "floor", "round",
+         "neg", "not"]
+}
+
+#[inline(always)]
+fn constants() -> NameList<'static> {
+    vec!["pi", "tau", "e"]
+}
+
+// --------------------------------------------------------------------------------
 // Tests
 
 #[cfg(test)]
@@ -147,25 +165,15 @@ mod tests {
     fn test_lexer_token_type() {
         let lexer = Lexer::new();
 
-        let bops = vec!["+", "-", "*", "/", "%", "^",
-                        "max", "min",
-                        "==", "!=", "<", "<=", ">", ">=",
-                        "and", "or"];
-        for sym in bops.iter() {
+        for sym in binary_ops().iter() {
             assert_eq!(lexer.token_type(sym), TokenType::BinaryOp);
         }
 
-        let uops = vec!["sqrt", "exp", "exp2", "ln", "log2", "log10",
-                        "sin", "cos", "tan", "sinh", "cosh", "tanh",
-                        "asin", "acos", "atan", "asinh", "acosh", "atanh",
-                        "sign", "abs", "recip", "fract", "trunc",
-                        "ceil", "floor", "round",
-                        "neg", "not"];
-        for sym in uops.iter() {
+        for sym in unary_ops().iter() {
             assert_eq!(lexer.token_type(sym), TokenType::UnaryOp);
         }
 
-        for sym in vec!["pi", "tau", "e"].iter() {
+        for sym in constants().iter() {
             assert_eq!(lexer.token_type(sym), TokenType::Const);
         }
 
