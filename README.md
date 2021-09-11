@@ -30,6 +30,7 @@ Command line prefix calculator. Supported features:
 - REPL Commands
   ```
   :quit - Exit calculator
+  ctl-d - Exit calculator
   ```
 - Example Inputs
   ```

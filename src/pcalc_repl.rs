@@ -30,8 +30,13 @@ impl REPL {
             }
 
             let line_ref = line.trim();
-            if line_ref == ":quit" {
+            if line_ref == ":quit" || line == "" {
+                println!();
                 break;
+            }
+
+            if line_ref == "" {
+                continue;
             }
 
             self.eval_and_print(line_ref);
