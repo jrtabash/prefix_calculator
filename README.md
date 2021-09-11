@@ -32,20 +32,23 @@ Command line prefix calculator. Supported features:
   :quit - Exit calculator
   ctrl-d - Exit calculator
   ```
-- Example Inputs
+- REPL Variables
   ```
-  var x 5
-  + x 10
-  * 2 + x 20
-  sqrt + ^ 3 2 ^ 4 2
-  max 1 2
-  :quit
+  last - stores result of last calculation
   ```
-- Example Corresponding Outputs
+- Example
   ```
+  > var x 5
   5
+  > + x 10
   15
+  > * 2 + x 20
   50
+  > sqrt + ^ 3 2 ^ 4 2
   5
-  2
+  > / * 3.5 pi 2
+  5.497787143782138
+  > max x last
+  5.497787143782138
+  > :quit
   ```
