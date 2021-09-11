@@ -1,5 +1,21 @@
 # prefix_calculator
-Command line prefix calculator. Supported features:
+Command line prefix calculator.
+
+## Usage
+```bash
+USAGE:
+    prefix_calculator [FLAGS] [OPTIONS]
+
+FLAGS:
+    -i, --int        Force interactive mode. Use with -e/--expr option to force interactive mode
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -e, --expr <expr>    Evaluate expression. Use -i/--int to force interactive mode
+```
+
+## Supported features
 - Numeric (e.g. 10.5) and boolean (e.g. true, false) values
 - Constants:
   ```

@@ -22,6 +22,12 @@ impl REPL {
         repl
     }
 
+    pub fn with_expr(expr: &str) -> Self {
+        let mut repl = REPL::new();
+        repl.eval_and_print(expr);
+        repl
+    }
+
     pub fn run(&mut self) {
         let mut line = String::new();
         loop {
