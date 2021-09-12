@@ -1,3 +1,4 @@
+pub mod pcalc_keywords;
 pub mod pcalc_value;
 pub mod pcalc_binary_ops;
 pub mod pcalc_unary_ops;

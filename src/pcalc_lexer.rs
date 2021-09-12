@@ -1,5 +1,6 @@
 use std::cmp;
 use std::collections::HashMap;
+use crate::pcalc_keywords as keywords;
 
 // --------------------------------------------------------------------------------
 // TokenType
@@ -105,53 +106,25 @@ impl Lexer {
     fn make_token_types() -> HashMap<String, TokenType> {
         let mut table: HashMap<String, TokenType> = HashMap::new();
 
-        for sym in binary_ops().iter() {
+        for sym in keywords::binary_ops().iter() {
             table.insert(String::from(*sym), TokenType::BinaryOp);
         }
 
-        for sym in unary_ops().iter() {
+        for sym in keywords::unary_ops().iter() {
             table.insert(String::from(*sym), TokenType::UnaryOp);
         }
 
-        for sym in constants().iter() {
+        for sym in keywords::constants().iter() {
             table.insert(String::from(*sym), TokenType::Const);
         }
 
-        table.insert(String::from("true"), TokenType::Literal);
-        table.insert(String::from("false"), TokenType::Literal);
-        table.insert(String::from("var"), TokenType::Define);
-        table.insert(String::from("="), TokenType::Assign);
+        table.insert(String::from(keywords::TRUE), TokenType::Literal);
+        table.insert(String::from(keywords::FALSE), TokenType::Literal);
+        table.insert(String::from(keywords::DEFVAR), TokenType::Define);
+        table.insert(String::from(keywords::SETVAR), TokenType::Assign);
 
         table
     }
-}
-
-// --------------------------------------------------------------------------------
-// NameList
-
-type NameList<'a> = Vec<&'a str>;
-
-#[inline(always)]
-fn binary_ops() -> NameList<'static> {
-    vec!["+", "-", "*", "/", "%", "^",
-         "max", "min",
-         "==", "!=", "<", "<=", ">", ">=",
-         "and", "or"]
-}
-
-#[inline(always)]
-fn unary_ops() -> NameList<'static> {
-    vec!["sqrt", "exp", "exp2", "ln", "log2", "log10",
-         "sin", "cos", "tan", "sinh", "cosh", "tanh",
-         "asin", "acos", "atan", "asinh", "acosh", "atanh",
-         "sign", "abs", "recip", "fract", "trunc",
-         "ceil", "floor", "round",
-         "neg", "not"]
-}
-
-#[inline(always)]
-fn constants() -> NameList<'static> {
-    vec!["pi", "tau", "e"]
 }
 
 // --------------------------------------------------------------------------------
@@ -165,22 +138,23 @@ mod tests {
     fn test_lexer_token_type() {
         let lexer = Lexer::new();
 
-        for sym in binary_ops().iter() {
+        for sym in keywords::binary_ops().iter() {
             assert_eq!(lexer.token_type(sym), TokenType::BinaryOp);
         }
 
-        for sym in unary_ops().iter() {
+        for sym in keywords::unary_ops().iter() {
             assert_eq!(lexer.token_type(sym), TokenType::UnaryOp);
         }
 
-        for sym in constants().iter() {
+        for sym in keywords::constants().iter() {
             assert_eq!(lexer.token_type(sym), TokenType::Const);
         }
 
-        assert_eq!(lexer.token_type("var"), TokenType::Define);
-        assert_eq!(lexer.token_type("="), TokenType::Assign);
+        assert_eq!(lexer.token_type(keywords::DEFVAR), TokenType::Define);
+        assert_eq!(lexer.token_type(keywords::SETVAR), TokenType::Assign);
+        assert_eq!(lexer.token_type(keywords::TRUE), TokenType::Literal);
+        assert_eq!(lexer.token_type(keywords::FALSE), TokenType::Literal);
         assert_eq!(lexer.token_type("5.0"), TokenType::Literal);
-        assert_eq!(lexer.token_type("true"), TokenType::Literal);
         assert_eq!(lexer.token_type("foobar"), TokenType::Identifier);
     }
 

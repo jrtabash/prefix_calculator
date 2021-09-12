@@ -1,4 +1,5 @@
 use crate::pcalc_value::{Value, ValueResult};
+use crate::pcalc_keywords as keywords;
 
 #[inline(always)]
 pub fn add(lhs: &Value, rhs: &Value) -> ValueResult {
@@ -86,22 +87,22 @@ pub type BinaryFtn = fn(&Value, &Value) -> ValueResult;
 
 pub fn bop2ftn(name: &str) -> Option<BinaryFtn> {
     match name {
-        "+" => Some(add),
-        "-" => Some(subtract),
-        "*" => Some(multiply),
-        "/" => Some(divide),
-        "%" => Some(remainder),
-        "^" => Some(power),
-        "max" => Some(maximum),
-        "min" => Some(minimum),
-        "==" => Some(equal),
-        "!=" => Some(not_equal),
-        "<" => Some(less),
-        "<=" => Some(less_equal),
-        ">" => Some(greater),
-        ">=" => Some(greater_equal),
-        "and" => Some(logical_and),
-        "or" => Some(logical_or),
+        keywords::ADD => Some(add),
+        keywords::SUBTRACT => Some(subtract),
+        keywords::MULTIPLY => Some(multiply),
+        keywords::DIVIDE => Some(divide),
+        keywords::REMAINDER => Some(remainder),
+        keywords::POWER => Some(power),
+        keywords::MAX => Some(maximum),
+        keywords::MIN => Some(minimum),
+        keywords::EQUAL => Some(equal),
+        keywords::NOT_EQUAL => Some(not_equal),
+        keywords::LESS => Some(less),
+        keywords::LESS_EQUAL => Some(less_equal),
+        keywords::GREATER => Some(greater),
+        keywords::GREATER_EQUAL => Some(greater_equal),
+        keywords::AND => Some(logical_and),
+        keywords::OR => Some(logical_or),
         _ => None
     }
 }

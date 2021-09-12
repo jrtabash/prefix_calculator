@@ -1,4 +1,5 @@
 use crate::pcalc_value::{Value, ValueResult};
+use crate::pcalc_keywords as keywords;
 
 #[inline(always)]
 pub fn square_root(val: &Value) -> ValueResult {
@@ -146,34 +147,34 @@ pub type UnaryFtn = fn(&Value) -> ValueResult;
 
 pub fn uop2ftn(name: &str) -> Option<UnaryFtn> {
     match name {
-        "sqrt" => Some(square_root),
-        "exp" => Some(exponential),
-        "exp2" => Some(exponential2),
-        "ln" => Some(natural_logarithm),
-        "log2" => Some(logarithm2),
-        "log10" => Some(logarithm10),
-        "sin" => Some(trig_sin),
-        "cos" => Some(trig_cos),
-        "tan" => Some(trig_tan),
-        "sinh" => Some(trig_sinh),
-        "cosh" => Some(trig_cosh),
-        "tanh" => Some(trig_tanh),
-        "asin" => Some(trig_asin),
-        "acos" => Some(trig_acos),
-        "atan" => Some(trig_atan),
-        "asinh" => Some(trig_asinh),
-        "acosh" => Some(trig_acosh),
-        "atanh" => Some(trig_atanh),
-        "sign" => Some(sign),
-        "abs" => Some(absolute),
-        "recip" => Some(reciprocal),
-        "fract" => Some(fraction),
-        "trunc" => Some(truncate),
-        "ceil" => Some(ceiling),
-        "floor" => Some(floor),
-        "round" => Some(round),
-        "neg" => Some(negate),
-        "not" => Some(logical_not),
+        keywords::SQRT => Some(square_root),
+        keywords::EXP => Some(exponential),
+        keywords::EXP2 => Some(exponential2),
+        keywords::LN => Some(natural_logarithm),
+        keywords::LOG2 => Some(logarithm2),
+        keywords::LOG10 => Some(logarithm10),
+        keywords::SIN => Some(trig_sin),
+        keywords::COS => Some(trig_cos),
+        keywords::TAN => Some(trig_tan),
+        keywords::SINH => Some(trig_sinh),
+        keywords::COSH => Some(trig_cosh),
+        keywords::TANH => Some(trig_tanh),
+        keywords::ASIN => Some(trig_asin),
+        keywords::ACOS => Some(trig_acos),
+        keywords::ATAN => Some(trig_atan),
+        keywords::ASINH => Some(trig_asinh),
+        keywords::ACOSH => Some(trig_acosh),
+        keywords::ATANH => Some(trig_atanh),
+        keywords::SIGN => Some(sign),
+        keywords::ABS => Some(absolute),
+        keywords::RECIP => Some(reciprocal),
+        keywords::FRACT => Some(fraction),
+        keywords::TRUNC => Some(truncate),
+        keywords::CEIL => Some(ceiling),
+        keywords::FLOOR => Some(floor),
+        keywords::ROUND => Some(round),
+        keywords::NEG => Some(negate),
+        keywords::NOT => Some(logical_not),
         _ => None
     }
 }
