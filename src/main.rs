@@ -26,7 +26,8 @@ fn parse_args() -> Arguments {
         .arg(Arg::with_name("expr")
              .short("e")
              .long("expr")
-             .help("Evaluate expression. Use -i/--int to force interactive mode")
+             .help("Evaluate expression. Use -i/--int to force interactive mode. \
+                    Use semicolon ; to separate multiple expressions.")
              .takes_value(true))
         .get_matches();
 

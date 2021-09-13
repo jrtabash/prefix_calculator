@@ -67,7 +67,7 @@ impl Parser {
         self.lexer.tokenize(expr);
         match self.make_code() {
             Ok(code) => {
-                // For now, expect one full/complete expression per line
+                // Expect a full/complete expression.
                 if !self.lexer.is_empty() {
                     self.lexer.clear();
                     Err(ParserError::new(&format!("Invalid expression - '{}'", expr)))

@@ -43,14 +43,19 @@ OPTIONS:
   ceil, floor, round,
   neg, not
   ```
-- REPL Commands
+- REPL
+  Commands
   ```
   :quit - Exit calculator
   ctrl-d - Exit calculator
   ```
-- REPL Variables
+  Variables
   ```
   last - stores result of last calculation
+  ```
+  Note
+  ```
+  Use semicolon ; to separate multiple expressions on the same line
   ```
 - Example
   ```
