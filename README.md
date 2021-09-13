@@ -44,6 +44,7 @@ OPTIONS:
   neg, not
   ```
 - REPL
+
   Commands
   ```
   :quit - Exit calculator
