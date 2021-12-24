@@ -15,10 +15,6 @@ impl ValueError {
             error_msg: String::from(err_msg)
         }
     }
-
-    pub fn not_a_value() -> ValueError {
-        ValueError::new("Not a value")
-    }
 }
 
 impl fmt::Display for ValueError {
@@ -123,7 +119,6 @@ mod tests {
     #[test]
     fn test_value_error() {
         assert_eq!(format!("{}", ValueError::new("foobar")), "foobar");
-        assert_eq!(format!("{}", ValueError::not_a_value()), "Not a value");
     }
 
     #[test]
