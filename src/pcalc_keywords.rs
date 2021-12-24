@@ -62,6 +62,8 @@ pub const FLOOR: &str = "floor";
 pub const ROUND: &str = "round";
 pub const NEG: &str = "neg";
 pub const NOT: &str = "not";
+pub const ASNUM: &str = "asnum";
+pub const ASBOOL: &str = "asbool";
 
 // --------------------------------------------------------------------------------
 // Keyword Functions
@@ -81,7 +83,8 @@ pub fn unary_ops() -> NameList<'static> {
          ASIN, ACOS, ATAN, ASINH, ACOSH, ATANH,
          SIGN, ABS, RECIP, FRACT, TRUNC,
          CEIL, FLOOR, ROUND,
-         NEG, NOT]
+         NEG, NOT,
+         ASNUM, ASBOOL]
 }
 
 #[inline(always)]

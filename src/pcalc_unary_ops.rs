@@ -141,6 +141,16 @@ pub fn logical_not(val: &Value) -> ValueResult {
     Ok(Value::from_bool(!val.to_bool()?))
 }
 
+#[inline(always)]
+pub fn num_cast(val: &Value) -> ValueResult {
+    Ok(Value::from_num(val.as_num()))
+}
+
+#[inline(always)]
+pub fn bool_cast(val: &Value) -> ValueResult {
+    Ok(Value::from_bool(val.as_bool()))
+}
+
 // --------------------------------------------------------------------------------
 
 pub type UnaryFtn = fn(&Value) -> ValueResult;
@@ -175,6 +185,8 @@ pub fn uop2ftn(name: &str) -> Option<UnaryFtn> {
         keywords::ROUND => Some(round),
         keywords::NEG => Some(negate),
         keywords::NOT => Some(logical_not),
+        keywords::ASNUM => Some(num_cast),
+        keywords::ASBOOL => Some(bool_cast),
         _ => None
     }
 }
@@ -431,5 +443,23 @@ mod tests {
         let no = Value::from_bool(false);
         assert_eq!(logical_not(&yes).unwrap(), no);
         assert_eq!(logical_not(&no).unwrap(), yes);
+    }
+
+    #[test]
+    fn test_type_cast() {
+        let one = Value::from_num(1.0);
+        let zero = Value::from_num(0.0);
+        let yes = Value::from_bool(true);
+        let no = Value::from_bool(false);
+
+        assert_eq!(num_cast(&one).unwrap(), one);
+        assert_eq!(num_cast(&zero).unwrap(), zero);
+        assert_eq!(num_cast(&yes).unwrap(), one);
+        assert_eq!(num_cast(&no).unwrap(), zero);
+
+        assert_eq!(bool_cast(&one).unwrap(), yes);
+        assert_eq!(bool_cast(&zero).unwrap(), no);
+        assert_eq!(bool_cast(&yes).unwrap(), yes);
+        assert_eq!(bool_cast(&no).unwrap(), no);
     }
 }

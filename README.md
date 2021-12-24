@@ -42,7 +42,8 @@ OPTIONS:
   asin, acos, atan, asinh, acosh, atanh,
   sign, abs, recip, fract, trunc,
   ceil, floor, round,
-  neg, not
+  neg, not,
+  asnum, asbool
   ```
 - REPL
 
@@ -73,5 +74,9 @@ OPTIONS:
   5.497787143782138
   > max x last
   5.497787143782138
+  > and asbool 5 true
+  true
+  > + 5 asnum true
+  6
   > :quit
   ```

@@ -73,6 +73,20 @@ impl Value {
         }
     }
 
+    pub fn as_num(&self) -> f64 {
+        match self {
+            Value::Num(n) => *n,
+            Value::Bool(b) => if *b { 1.0 } else { 0.0 }
+        }
+    }
+
+    pub fn as_bool(&self) -> bool {
+        match self {
+            Value::Num(n) => *n != 0.0,
+            Value::Bool(b) => *b
+        }
+    }
+
     pub fn to_string(&self) -> String {
         match self {
             Value::Num(n) => format!("{}", n),
@@ -124,11 +138,9 @@ mod tests {
 
     #[test]
     fn test_value_error() {
-        assert_eq!(format!("{}", ValueError::new("foobar")), "foobar");
-
         let five = Value::from_num(5.0);
         let yes = Value::from_bool(true);
-
+        assert_eq!(format!("{}", ValueError::new("foobar")), "foobar");
         assert_eq!(format!("{}", five.to_bool().unwrap_err()), "5 not a boolean");
         assert_eq!(format!("{}", yes.to_num().unwrap_err()), "true not a number");
     }
@@ -193,5 +205,23 @@ mod tests {
         assert!(yes1 <= yes2);
         assert!(yes1 > no);
         assert!(yes1 >= yes2);
+    }
+
+    #[test]
+    fn test_value_cast() {
+        let five = Value::from_num(5.0);
+        let zero = Value::from_num(0.0);
+        let yes = Value::from_bool(true);
+        let no = Value::from_bool(false);
+
+        assert_eq!(five.as_num(), 5.0);
+        assert_eq!(zero.as_num(), 0.0);
+        assert_eq!(yes.as_num(), 1.0);
+        assert_eq!(no.as_num(), 0.0);
+
+        assert_eq!(five.as_bool(), true);
+        assert_eq!(zero.as_bool(), false);
+        assert_eq!(yes.as_bool(), true);
+        assert_eq!(no.as_bool(), false);
     }
 }
