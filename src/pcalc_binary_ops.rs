@@ -120,8 +120,8 @@ mod tests {
         let yes = Value::from_bool(true);
         let no = Value::from_bool(false);
         assert_eq!(add(&five, &three).unwrap(), Value::from_num(8.0));
-        assert_eq!(add(&five, &yes).unwrap(), Value::from_num(6.0));
-        assert_eq!(add(&five, &no).unwrap(), Value::from_num(5.0));
+        assert!(add(&five, &yes).is_err());
+        assert!(add(&five, &no).is_err());
     }
 
     #[test]
@@ -131,8 +131,8 @@ mod tests {
         let yes = Value::from_bool(true);
         let no = Value::from_bool(false);
         assert_eq!(subtract(&five, &three).unwrap(), Value::from_num(2.0));
-        assert_eq!(subtract(&five, &yes).unwrap(), Value::from_num(4.0));
-        assert_eq!(subtract(&five, &no).unwrap(), Value::from_num(5.0));
+        assert!(subtract(&five, &yes).is_err());
+        assert!(subtract(&five, &no).is_err());
     }
 
     #[test]
@@ -142,8 +142,8 @@ mod tests {
         let yes = Value::from_bool(true);
         let no = Value::from_bool(false);
         assert_eq!(multiply(&five, &three).unwrap(), Value::from_num(15.0));
-        assert_eq!(multiply(&five, &yes).unwrap(), Value::from_num(5.0));
-        assert_eq!(multiply(&five, &no).unwrap(), Value::from_num(0.0));
+        assert!(multiply(&five, &yes).is_err());
+        assert!(multiply(&five, &no).is_err());
     }
 
     #[test]
@@ -152,7 +152,7 @@ mod tests {
         let two = Value::from_num(2.0);
         let yes = Value::from_bool(true);
         assert_eq!(divide(&six, &two).unwrap(), Value::from_num(3.0));
-        assert_eq!(divide(&six, &yes).unwrap(), Value::from_num(6.0));
+        assert!(divide(&six, &yes).is_err());
     }
 
     #[test]
@@ -163,7 +163,7 @@ mod tests {
         let yes = Value::from_bool(true);
         assert_eq!(remainder(&six, &two).unwrap(), Value::from_num(0.0));
         assert_eq!(remainder(&five, &two).unwrap(), Value::from_num(1.0));
-        assert_eq!(remainder(&five, &yes).unwrap(), Value::from_num(0.0));
+        assert!(remainder(&five, &yes).is_err());
     }
 
     #[test]
@@ -172,7 +172,7 @@ mod tests {
         let two = Value::from_num(2.0);
         let yes = Value::from_bool(true);
         assert_eq!(power(&six, &two).unwrap(), Value::from_num(36.0));
-        assert_eq!(power(&six, &yes).unwrap(), Value::from_num(6.0));
+        assert!(power(&six, &yes).is_err());
     }
 
     #[test]
@@ -183,7 +183,7 @@ mod tests {
         let no = Value::from_bool(false);
         assert_eq!(maximum(&six, &two).unwrap(), Value::from_num(6.0));
         assert_eq!(maximum(&two, &six).unwrap(), Value::from_num(6.0));
-        assert_eq!(maximum(&yes, &no).unwrap(), Value::from_num(1.0));
+        assert!(maximum(&yes, &no).is_err());
     }
 
     #[test]
@@ -194,7 +194,7 @@ mod tests {
         let no = Value::from_bool(false);
         assert_eq!(minimum(&six, &two).unwrap(), Value::from_num(2.0));
         assert_eq!(minimum(&two, &six).unwrap(), Value::from_num(2.0));
-        assert_eq!(minimum(&yes, &no).unwrap(), Value::from_num(0.0));
+        assert!(minimum(&yes, &no).is_err());
     }
 
     #[test]
@@ -265,10 +265,10 @@ mod tests {
         assert_eq!(logical_and(&no, &yes).unwrap(), no);
         assert_eq!(logical_and(&no, &no).unwrap(), no);
 
-        assert_eq!(logical_and(&one, &one).unwrap(), yes);
-        assert_eq!(logical_and(&one, &zero).unwrap(), no);
-        assert_eq!(logical_and(&zero, &one).unwrap(), no);
-        assert_eq!(logical_and(&zero, &zero).unwrap(), no);
+        assert!(logical_and(&one, &one).is_err());
+        assert!(logical_and(&one, &zero).is_err());
+        assert!(logical_and(&zero, &one).is_err());
+        assert!(logical_and(&zero, &zero).is_err());
     }
 
     #[test]
@@ -283,9 +283,9 @@ mod tests {
         assert_eq!(logical_or(&no, &yes).unwrap(), yes);
         assert_eq!(logical_or(&no, &no).unwrap(), no);
 
-        assert_eq!(logical_or(&one, &one).unwrap(), yes);
-        assert_eq!(logical_or(&one, &zero).unwrap(), yes);
-        assert_eq!(logical_or(&zero, &one).unwrap(), yes);
-        assert_eq!(logical_or(&zero, &zero).unwrap(), no);
+        assert!(logical_or(&one, &one).is_err());
+        assert!(logical_or(&one, &zero).is_err());
+        assert!(logical_or(&zero, &one).is_err());
+        assert!(logical_or(&zero, &zero).is_err());
     }
 }

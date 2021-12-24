@@ -15,6 +15,12 @@ impl ValueError {
             error_msg: String::from(err_msg)
         }
     }
+
+    pub fn from_string(err_msg: String) -> ValueError {
+        ValueError {
+            error_msg: err_msg
+        }
+    }
 }
 
 impl fmt::Display for ValueError {
@@ -56,14 +62,14 @@ impl Value {
     pub fn to_num(&self) -> Result<f64, ValueError> {
         match self {
             Value::Num(n) => Ok(*n),
-            Value::Bool(b) => Ok(if *b { 1.0 } else { 0.0 }),
+            Value::Bool(_) => Err(ValueError::from_string(format!("{} not a number", self)))
         }
     }
 
     pub fn to_bool(&self) -> Result<bool, ValueError> {
         match self {
-            Value::Num(n) => Ok(*n != 0.0),
-            Value::Bool(b) => Ok(*b),
+            Value::Num(_) => Err(ValueError::from_string(format!("{} not a boolean", self))),
+            Value::Bool(b) => Ok(*b)
         }
     }
 
@@ -119,6 +125,12 @@ mod tests {
     #[test]
     fn test_value_error() {
         assert_eq!(format!("{}", ValueError::new("foobar")), "foobar");
+
+        let five = Value::from_num(5.0);
+        let yes = Value::from_bool(true);
+
+        assert_eq!(format!("{}", five.to_bool().unwrap_err()), "5 not a boolean");
+        assert_eq!(format!("{}", yes.to_num().unwrap_err()), "true not a number");
     }
 
     #[test]
@@ -128,7 +140,7 @@ mod tests {
         assert!(!five.is_bool());
 
         assert_eq!(five.to_num().unwrap(), 5.0);
-        assert_eq!(five.to_bool().unwrap(), true);
+        assert!(five.to_bool().is_err());
 
         assert_eq!(five.to_string(), "5");
     }
@@ -139,7 +151,7 @@ mod tests {
         assert!(!flag.is_num());
         assert!(flag.is_bool());
 
-        assert_eq!(flag.to_num().unwrap(), 1.0);
+        assert!(flag.to_num().is_err());
         assert_eq!(flag.to_bool().unwrap(), true);
 
         assert_eq!(flag.to_string(), "true");

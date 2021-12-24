@@ -194,7 +194,7 @@ mod tests {
         let four = Value::from_num(4.0);
         let yes = Value::from_bool(true);
         assert!(check_equal(square_root(&four).unwrap(), 2.0));
-        assert!(check_equal(square_root(&yes).unwrap(), 1.0));
+        assert!(square_root(&yes).is_err());
     }
 
     #[test]
