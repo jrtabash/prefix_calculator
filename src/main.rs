@@ -17,7 +17,7 @@ fn main() {
 
 fn parse_args() -> Arguments {
     let pargs = App::new("Prefix Calculator")
-        .version("0.2.0")
+        .version("0.2.1")
         .about("Command line prefix calculator")
         .arg(Arg::with_name("force_int")
              .short("i")
