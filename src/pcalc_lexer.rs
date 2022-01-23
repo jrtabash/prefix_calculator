@@ -3,6 +3,26 @@ use std::collections::HashMap;
 use crate::pcalc_keywords as keywords;
 
 // --------------------------------------------------------------------------------
+// Parser Error
+
+#[derive(Debug, Clone)]
+pub struct LexerError {
+    error_msg: String
+}
+
+impl LexerError {
+    pub fn invalid_identifier(name: &str) -> Self {
+        LexerError {
+            error_msg: format!("Invalid identifier - '{}'", name)
+        }
+    }
+
+    pub fn message<'a>(&'a self) -> &'a str {
+        self.error_msg.as_str()
+    }
+}
+
+// --------------------------------------------------------------------------------
 // TokenType
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -56,22 +76,28 @@ impl Lexer {
         }
     }
 
-    pub fn token_type(&self, token: &str) -> TokenType {
+    pub fn token_type(&self, token: &str) -> Result<TokenType, LexerError> {
         if let Some(toktyp) = self.table.get(token) {
-            *toktyp
+            Ok(*toktyp)
         }
         else if token.parse::<f64>().is_ok() {
-            TokenType::Literal
+            Ok(TokenType::Literal)
         }
         else {
-            TokenType::Identifier
+            if Self::is_valid_identifier(token) {
+                Ok(TokenType::Identifier)
+            }
+            else {
+                Err(LexerError::invalid_identifier(token))
+            }
         }
     }
 
-    pub fn tokenize(&mut self, expr: &str) {
+    pub fn tokenize(&mut self, expr: &str) -> Result<(), LexerError> {
         for tok in expr.split_whitespace() {
-            self.tokens.push(Token::new(self.token_type(tok), tok));
+            self.tokens.push(Token::new(self.token_type(tok)?, tok));
         }
+        Ok(())
     }
 
     pub fn next_token(&mut self) -> Option<Token> {
@@ -102,6 +128,11 @@ impl Lexer {
 
     // --------------------------------------------------------------------------------
     // Private Functions
+
+    fn is_valid_identifier(token: &str) -> bool {
+        token.starts_with(char::is_alphabetic) &&
+            token.find(|c: char| !c.is_alphanumeric() && c != '_').is_none()
+    }
 
     fn make_token_types() -> HashMap<String, TokenType> {
         let mut table: HashMap<String, TokenType> = HashMap::new();
@@ -135,33 +166,48 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_is_valid_identifier() {
+        assert!(Lexer::is_valid_identifier("a"));
+        assert!(Lexer::is_valid_identifier("a_"));
+        assert!(Lexer::is_valid_identifier("a__"));
+
+        assert!(!Lexer::is_valid_identifier("_"));
+        assert!(!Lexer::is_valid_identifier("_a"));
+
+        assert!(!Lexer::is_valid_identifier("foo-bar"));
+        assert!(!Lexer::is_valid_identifier("foo!"));
+        assert!(!Lexer::is_valid_identifier("@foo"));
+        assert!(!Lexer::is_valid_identifier("$foo"));
+    }
+
+    #[test]
     fn test_lexer_token_type() {
         let lexer = Lexer::new();
 
         for sym in keywords::binary_ops().iter() {
-            assert_eq!(lexer.token_type(sym), TokenType::BinaryOp);
+            assert_eq!(lexer.token_type(sym).unwrap(), TokenType::BinaryOp);
         }
 
         for sym in keywords::unary_ops().iter() {
-            assert_eq!(lexer.token_type(sym), TokenType::UnaryOp);
+            assert_eq!(lexer.token_type(sym).unwrap(), TokenType::UnaryOp);
         }
 
         for sym in keywords::constants().iter() {
-            assert_eq!(lexer.token_type(sym), TokenType::Const);
+            assert_eq!(lexer.token_type(sym).unwrap(), TokenType::Const);
         }
 
-        assert_eq!(lexer.token_type(keywords::DEFVAR), TokenType::Define);
-        assert_eq!(lexer.token_type(keywords::SETVAR), TokenType::Assign);
-        assert_eq!(lexer.token_type(keywords::TRUE), TokenType::Literal);
-        assert_eq!(lexer.token_type(keywords::FALSE), TokenType::Literal);
-        assert_eq!(lexer.token_type("5.0"), TokenType::Literal);
-        assert_eq!(lexer.token_type("foobar"), TokenType::Identifier);
+        assert_eq!(lexer.token_type(keywords::DEFVAR).unwrap(), TokenType::Define);
+        assert_eq!(lexer.token_type(keywords::SETVAR).unwrap(), TokenType::Assign);
+        assert_eq!(lexer.token_type(keywords::TRUE).unwrap(), TokenType::Literal);
+        assert_eq!(lexer.token_type(keywords::FALSE).unwrap(), TokenType::Literal);
+        assert_eq!(lexer.token_type("5.0").unwrap(), TokenType::Literal);
+        assert_eq!(lexer.token_type("foobar").unwrap(), TokenType::Identifier);
     }
 
     #[test]
     fn test_lexer_tokenize() {
         fn test_a_plus5(lexer: &mut Lexer, a_plus5: &str) {
-            lexer.tokenize(a_plus5);
+            lexer.tokenize(a_plus5).unwrap();
             assert_eq!(lexer.next_token().unwrap(), Token::new(TokenType::BinaryOp, "+"));
             assert_eq!(lexer.next_token().unwrap(), Token::new(TokenType::Identifier, "a"));
             assert_eq!(lexer.next_token().unwrap(), Token::new(TokenType::Literal, "5"));
@@ -174,7 +220,7 @@ mod tests {
         test_a_plus5(&mut lexer, "+  a  5 \n");
         test_a_plus5(&mut lexer, "\n+ \n  a  5 \n");
 
-        lexer.tokenize("+ 10 5");
+        lexer.tokenize("+ 10 5").unwrap();
         assert_eq!(*lexer.peek_token().unwrap(), Token::new(TokenType::BinaryOp, "+"));
         assert!(!lexer.is_empty());
 

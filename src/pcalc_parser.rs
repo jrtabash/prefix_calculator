@@ -1,6 +1,6 @@
 use std::fmt;
 use std::f64::consts;
-use crate::pcalc_lexer::{Lexer, TokenType};
+use crate::pcalc_lexer::{Lexer, TokenType, LexerError};
 use crate::pcalc_binary_ops::bop2ftn;
 use crate::pcalc_unary_ops::uop2ftn;
 use crate::pcalc_value::Value;
@@ -44,6 +44,14 @@ impl From<std::num::ParseFloatError> for ParserError {
     }
 }
 
+impl From<LexerError> for ParserError {
+    fn from(item: LexerError) -> Self {
+        ParserError {
+            error_msg: String::from(item.message())
+        }
+    }
+}
+
 // --------------------------------------------------------------------------------
 // Parser Result
 
@@ -64,7 +72,11 @@ impl Parser {
     }
 
     pub fn parse(&mut self, expr: &str) -> ParserResult {
-        self.lexer.tokenize(expr);
+        if let Err(err) = self.lexer.tokenize(expr) {
+            self.lexer.clear();
+            return Err(err.into())
+        }
+
         match self.make_code() {
             Ok(code) => {
                 // Expect a full/complete expression.
