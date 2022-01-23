@@ -30,7 +30,8 @@ OPTIONS:
   ```
   Note
   ```
-  Variable names must start with an alpha character, and must contain only alphanumeric and underscore characters
+  Variable names must start with an alpha character,
+  and must contain only alphanumeric and underscore characters
   ```
 - Binary operations
   ```
