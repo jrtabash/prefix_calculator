@@ -1,3 +1,4 @@
+use std::fmt;
 use std::collections::HashMap;
 use crate::pcalc_value::{Value, ValueResult, ValueError};
 
@@ -41,8 +42,25 @@ impl Environment {
         }
     }
 
+    pub fn reset(&mut self) {
+        self.table.clear();
+    }
+
     pub fn len(&self) -> usize {
         self.table.len()
+    }
+
+    pub fn show(&self) {
+        let width = self.table.iter().map(|kv| kv.0.len()).max().unwrap_or(0);
+        Self::prt_name_value(width, "name", "value");
+        Self::prt_name_value(width, "----", "-----");
+        for (name, value) in &self.table {
+            Self::prt_name_value(width, name, value);
+        }
+    }
+
+    fn prt_name_value<Value: fmt::Display + ?Sized>(width: usize, name: &str, value: &Value) {
+        println!("{name:<width$}   {value}", name=name, width=width, value=value);
     }
 }
 

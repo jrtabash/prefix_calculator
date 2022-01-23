@@ -18,7 +18,7 @@ impl REPL {
             env: Environment::new(),
             parser: Parser::new()
         };
-        repl.env.def(&repl.last_var, Value::from_num(0.0)).unwrap();
+        repl.reset_env();
         repl
     }
 
@@ -39,6 +39,10 @@ impl REPL {
             if line_ref == ":quit" || line.is_empty() {
                 println!();
                 break;
+            }
+
+            if self.try_repl_command(&line_ref) {
+                continue;
             }
 
             self.eval_and_print_line(line_ref);
@@ -101,5 +105,23 @@ impl REPL {
                 false
             }
         }
+    }
+
+    fn reset_env(&mut self) {
+        self.env.reset();
+        self.env.def(&self.last_var, Value::from_num(0.0)).unwrap();
+    }
+
+    fn try_repl_command(&mut self, cmd: &str) -> bool {
+        if cmd == ":env" {
+            self.env.show();
+            return true
+        }
+        else if cmd == ":reset" {
+            self.reset_env();
+            return true
+        }
+
+        false
     }
 }

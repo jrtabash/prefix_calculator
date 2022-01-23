@@ -51,6 +51,9 @@ OPTIONS:
   ```
   :quit - Exit calculator
   ctrl-d - Exit calculator
+
+  :env - Show calculator environment
+  :reset - Reset calculator environment
   ```
   Variables
   ```
