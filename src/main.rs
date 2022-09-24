@@ -5,7 +5,7 @@ use prefix_calculator::pcalc_repl::REPL;
 
 struct Arguments {
     force_int: bool,
-    expr: String,
+    expr: String
 }
 
 fn main() {
@@ -16,6 +16,7 @@ fn main() {
 // --------------------------------------------------------------------------------
 
 fn parse_args() -> Arguments {
+    #[rustfmt::skip]
     let pargs = App::new("Prefix Calculator")
         .version("0.2.1")
         .about("Command line prefix calculator")

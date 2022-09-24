@@ -1,7 +1,7 @@
-use std::io::{self, Write};
-use crate::pcalc_value::Value;
 use crate::pcalc_environment::Environment;
 use crate::pcalc_parser::Parser;
+use crate::pcalc_value::Value;
+use std::io::{self, Write};
 
 pub struct REPL {
     prompt: String,
@@ -57,7 +57,7 @@ impl REPL {
 
         print!("{}", self.prompt);
         match io::stdout().flush() {
-            Ok(()) => {},
+            Ok(()) => {}
             Err(err) => {
                 eprintln!("WriteError: {}", err);
                 return false;
@@ -65,7 +65,7 @@ impl REPL {
         }
 
         match io::stdin().read_line(line) {
-            Ok(_size) => { true },
+            Ok(_size) => true,
             Err(err) => {
                 eprintln!("ReadError: {}", err);
                 false
@@ -87,17 +87,15 @@ impl REPL {
 
     fn eval_and_print(&mut self, expr: &str) -> bool {
         match self.parser.parse(expr) {
-            Ok(code) => {
-                match code.eval(&mut self.env) {
-                    Ok(value) => {
-                        println!("{}", value);
-                        self.env.set(&self.last_var, value).unwrap();
-                        true
-                    },
-                    Err(err) => {
-                        eprintln!("EvalError: {}", err);
-                        false
-                    }
+            Ok(code) => match code.eval(&mut self.env) {
+                Ok(value) => {
+                    println!("{}", value);
+                    self.env.set(&self.last_var, value).unwrap();
+                    true
+                }
+                Err(err) => {
+                    eprintln!("EvalError: {}", err);
+                    false
                 }
             },
             Err(err) => {
@@ -115,11 +113,10 @@ impl REPL {
     fn try_repl_command(&mut self, cmd: &str) -> bool {
         if cmd == ":env" {
             self.env.show();
-            return true
-        }
-        else if cmd == ":reset" {
+            return true;
+        } else if cmd == ":reset" {
             self.reset_env();
-            return true
+            return true;
         }
 
         false
