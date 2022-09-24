@@ -16,7 +16,7 @@ impl REPL {
             prompt: String::from("> "),
             last_var: String::from("last"),
             env: Environment::new(),
-            parser: Parser::new()
+            parser: Default::default()
         };
         repl.reset_env();
         repl

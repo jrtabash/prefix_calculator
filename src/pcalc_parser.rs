@@ -1,18 +1,10 @@
-use std::fmt;
-use std::f64::consts;
-use crate::pcalc_lexer::{Lexer, TokenType, LexerError};
 use crate::pcalc_binary_ops::bop2ftn;
+use crate::pcalc_code::{BinaryOp, CodePtr, DefVar, GetVar, Literal, SetVar, UnaryOp};
+use crate::pcalc_lexer::{Lexer, LexerError, TokenType};
 use crate::pcalc_unary_ops::uop2ftn;
 use crate::pcalc_value::Value;
-use crate::pcalc_code::{
-    CodePtr,
-    Literal,
-    DefVar,
-    SetVar,
-    GetVar,
-    BinaryOp,
-    UnaryOp
-};
+use std::f64::consts;
+use std::fmt;
 
 // --------------------------------------------------------------------------------
 // Parser Error
@@ -66,15 +58,13 @@ pub struct Parser {
 
 impl Parser {
     pub fn new() -> Self {
-        Parser {
-            lexer: Lexer::new()
-        }
+        Parser { lexer: Lexer::new() }
     }
 
     pub fn parse(&mut self, expr: &str) -> ParserResult {
         if let Err(err) = self.lexer.tokenize(expr) {
             self.lexer.clear();
-            return Err(err.into())
+            return Err(err.into());
         }
 
         match self.make_code() {
@@ -83,8 +73,7 @@ impl Parser {
                 if !self.lexer.is_empty() {
                     self.lexer.clear();
                     Err(ParserError::new(&format!("Invalid expression - '{}'", expr)))
-                }
-                else {
+                } else {
                     Ok(code)
                 }
             }
@@ -107,10 +96,9 @@ impl Parser {
                 TokenType::Assign => self.make_set_variable(),
                 TokenType::BinaryOp => self.make_binary_op(&first.tname),
                 TokenType::UnaryOp => self.make_unary_op(&first.tname),
-                TokenType::Identifier => self.make_get_variable(&first.tname),
+                TokenType::Identifier => self.make_get_variable(&first.tname)
             }
-        }
-        else {
+        } else {
             Err(ParserError::new("Expecting token"))
         }
     }
@@ -131,10 +119,9 @@ impl Parser {
             "e" => Some(Value::from_num(consts::E)),
             _ => None
         };
-        if value.is_some() {
-            Ok(Box::new(Literal::new(value.unwrap())))
-        }
-        else {
+        if let Some(val) = value {
+            Ok(Box::new(Literal::new(val)))
+        } else {
             Err(ParserError::new(&format!("Unknown constant - '{}'", tname)))
         }
     }
@@ -143,12 +130,10 @@ impl Parser {
         if let Some(name_token) = self.lexer.next_token() {
             if name_token.ttype == TokenType::Identifier {
                 Ok(Box::new(DefVar::new(name_token.tname, self.make_code()?)))
-            }
-            else {
+            } else {
                 Err(ParserError::new(&format!("Invalid variable definition name - '{}'", name_token.tname)))
             }
-        }
-        else {
+        } else {
             Err(ParserError::new("Incomplete variable definition"))
         }
     }
@@ -157,12 +142,10 @@ impl Parser {
         if let Some(name_token) = self.lexer.next_token() {
             if name_token.ttype == TokenType::Identifier {
                 Ok(Box::new(SetVar::new(name_token.tname, self.make_code()?)))
-            }
-            else {
+            } else {
                 Err(ParserError::new(&format!("Invalid set variable name - '{}'", name_token.tname)))
             }
-        }
-        else {
+        } else {
             Err(ParserError::new("Incomplete set variable"))
         }
     }
@@ -174,8 +157,7 @@ impl Parser {
     fn make_binary_op(&mut self, name: &str) -> ParserResult {
         if let Some(ftn) = bop2ftn(name) {
             Ok(Box::new(BinaryOp::new(ftn, self.make_code()?, self.make_code()?)))
-        }
-        else {
+        } else {
             Err(ParserError::new(&format!("Unknown binary op - {}", name)))
         }
     }
@@ -183,10 +165,15 @@ impl Parser {
     fn make_unary_op(&mut self, name: &str) -> ParserResult {
         if let Some(ftn) = uop2ftn(name) {
             Ok(Box::new(UnaryOp::new(ftn, self.make_code()?)))
-        }
-        else {
+        } else {
             Err(ParserError::new(&format!("Unknown unary op - {}", name)))
         }
+    }
+}
+
+impl Default for Parser {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
