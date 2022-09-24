@@ -41,7 +41,7 @@ impl REPL {
                 break;
             }
 
-            if self.try_repl_command(&line_ref) {
+            if self.try_repl_command(line_ref) {
                 continue;
             }
 
@@ -123,5 +123,11 @@ impl REPL {
         }
 
         false
+    }
+}
+
+impl Default for REPL {
+    fn default() -> Self {
+        Self::new()
     }
 }
