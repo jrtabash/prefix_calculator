@@ -69,6 +69,7 @@ pub const ASBOOL: &str = "asbool";
 // Keyword Functions
 
 #[inline(always)]
+#[rustfmt::skip]
 pub fn binary_ops() -> NameList<'static> {
     vec![ADD, SUBTRACT, MULTIPLY, DIVIDE, REMAINDER, POWER,
          MAX, MIN,
@@ -77,6 +78,7 @@ pub fn binary_ops() -> NameList<'static> {
 }
 
 #[inline(always)]
+#[rustfmt::skip]
 pub fn unary_ops() -> NameList<'static> {
     vec![SQRT, EXP, EXP2, LN, LOG2, LOG10,
          SIN, COS, TAN, SINH, COSH, TANH,

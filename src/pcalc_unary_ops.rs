@@ -1,5 +1,5 @@
-use crate::pcalc_value::{Value, ValueResult};
 use crate::pcalc_keywords as keywords;
+use crate::pcalc_value::{Value, ValueResult};
 
 #[inline(always)]
 pub fn square_root(val: &Value) -> ValueResult {
