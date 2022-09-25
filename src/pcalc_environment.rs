@@ -1,23 +1,20 @@
-use std::fmt;
+use crate::pcalc_value::{Value, ValueError, ValueResult};
 use std::collections::HashMap;
-use crate::pcalc_value::{Value, ValueResult, ValueError};
+use std::fmt;
 
 pub struct Environment {
-    table: HashMap<String, Value>,
+    table: HashMap<String, Value>
 }
 
 impl Environment {
     pub fn new() -> Self {
-        Environment {
-            table: HashMap::new(),
-        }
+        Environment { table: HashMap::new() }
     }
 
     pub fn get(&self, name: &str) -> ValueResult {
         if let Some(value) = self.table.get(name) {
-            return Ok(*value)
-        }
-        else {
+            Ok(*value)
+        } else {
             Err(ValueError::new(&format!("Unknown variable '{}'", name)))
         }
     }
@@ -26,8 +23,7 @@ impl Environment {
         if !self.table.contains_key(name) {
             self.table.insert(String::from(name), value);
             Ok(value)
-        }
-        else {
+        } else {
             Err(ValueError::new(&format!("Duplicate variable definition '{}'", name)))
         }
     }
@@ -35,9 +31,8 @@ impl Environment {
     pub fn set(&mut self, name: &str, value: Value) -> ValueResult {
         if let Some(val) = self.table.get_mut(name) {
             *val = value;
-            return Ok(value)
-        }
-        else {
+            Ok(value)
+        } else {
             Err(ValueError::new(&format!("Unknown variable '{}'", name)))
         }
     }
@@ -50,6 +45,10 @@ impl Environment {
         self.table.len()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.table.is_empty()
+    }
+
     pub fn show(&self) {
         let width = self.table.iter().map(|kv| kv.0.len()).max().unwrap_or(0);
         Self::prt_name_value(width, "name", "value");
@@ -60,7 +59,13 @@ impl Environment {
     }
 
     fn prt_name_value<Value: fmt::Display + ?Sized>(width: usize, name: &str, value: &Value) {
-        println!("{name:<width$}   {value}", name=name, width=width, value=value);
+        println!("{name:<width$}   {value}", name = name, width = width, value = value);
+    }
+}
+
+impl Default for Environment {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

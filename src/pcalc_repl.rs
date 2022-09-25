@@ -15,7 +15,7 @@ impl REPL {
         let mut repl = REPL {
             prompt: String::from("> "),
             last_var: String::from("last"),
-            env: Environment::new(),
+            env: Default::default(),
             parser: Default::default()
         };
         repl.reset_env();
