@@ -48,7 +48,7 @@ pub struct Token {
 impl Token {
     pub fn new(ttype: TokenType, tname: &str) -> Self {
         Token {
-            ttype: ttype,
+            ttype,
             tname: String::from(tname)
         }
     }
@@ -81,12 +81,10 @@ impl Lexer {
             Ok(*toktyp)
         } else if token.parse::<f64>().is_ok() {
             Ok(TokenType::Literal)
+        } else if Self::is_valid_identifier(token) {
+            Ok(TokenType::Identifier)
         } else {
-            if Self::is_valid_identifier(token) {
-                Ok(TokenType::Identifier)
-            } else {
-                Err(LexerError::invalid_identifier(token))
-            }
+            Err(LexerError::invalid_identifier(token))
         }
     }
 
