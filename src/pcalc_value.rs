@@ -1,5 +1,5 @@
-use std::fmt;
 use std::cmp;
+use std::fmt;
 
 // --------------------------------------------------------------------------------
 // Value Error
@@ -17,9 +17,7 @@ impl ValueError {
     }
 
     pub fn from_string(err_msg: String) -> ValueError {
-        ValueError {
-            error_msg: err_msg
-        }
+        ValueError { error_msg: err_msg }
     }
 }
 
@@ -34,8 +32,8 @@ impl fmt::Display for ValueError {
 
 #[derive(Debug, Clone, Copy)]
 pub enum Value {
-    Num(f64),    // Number
-    Bool(bool),  // Boolean
+    Num(f64),   // Number
+    Bool(bool)  // Boolean
 }
 
 impl Value {
@@ -51,12 +49,12 @@ impl Value {
 
     #[inline(always)]
     pub fn is_num(&self) -> bool {
-        if let Value::Num(_) = self { true } else { false }
+        matches!(self, Value::Num(_))
     }
 
     #[inline(always)]
     pub fn is_bool(&self) -> bool {
-        if let Value::Bool(_) = self { true } else { false }
+        matches!(self, Value::Bool(_))
     }
 
     pub fn to_num(&self) -> Result<f64, ValueError> {
@@ -76,7 +74,13 @@ impl Value {
     pub fn as_num(&self) -> f64 {
         match self {
             Value::Num(n) => *n,
-            Value::Bool(b) => if *b { 1.0 } else { 0.0 }
+            Value::Bool(b) => {
+                if *b {
+                    1.0
+                } else {
+                    0.0
+                }
+            }
         }
     }
 
@@ -86,18 +90,14 @@ impl Value {
             Value::Bool(b) => *b
         }
     }
-
-    pub fn to_string(&self) -> String {
-        match self {
-            Value::Num(n) => format!("{}", n),
-            Value::Bool(b) => format!("{}", b),
-        }
-    }
 }
 
 impl fmt::Display for Value {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.to_string())
+        match self {
+            Value::Num(n) => write!(f, "{}", n),
+            Value::Bool(b) => write!(f, "{}", b)
+        }
     }
 }
 
@@ -105,7 +105,7 @@ impl cmp::PartialEq for Value {
     fn eq(&self, other: &Self) -> bool {
         match self {
             Value::Num(n) => other.is_num() && *n == other.to_num().unwrap(),
-            Value::Bool(b) => other.is_bool() && *b == other.to_bool().unwrap(),
+            Value::Bool(b) => other.is_bool() && *b == other.to_bool().unwrap()
         }
     }
 }
@@ -114,11 +114,9 @@ impl cmp::PartialOrd for Value {
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
         if self.is_num() && other.is_num() {
             self.to_num().unwrap().partial_cmp(&other.to_num().unwrap())
-        }
-        else if self.is_bool() && other.is_bool() {
+        } else if self.is_bool() && other.is_bool() {
             self.to_bool().unwrap().partial_cmp(&other.to_bool().unwrap())
-        }
-        else {
+        } else {
             None
         }
     }
@@ -169,7 +167,7 @@ mod tests {
         assert_eq!(flag.to_string(), "true");
     }
 
-   #[test]
+    #[test]
     fn test_value_equal() {
         let five1 = Value::from_num(5.0);
         let five2 = Value::from_num(5.0);
