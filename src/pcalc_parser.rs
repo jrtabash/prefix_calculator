@@ -58,7 +58,7 @@ pub struct Parser {
 
 impl Parser {
     pub fn new() -> Self {
-        Parser { lexer: Lexer::new() }
+        Parser { lexer: Default::default() }
     }
 
     pub fn parse(&mut self, expr: &str) -> ParserResult {

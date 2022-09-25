@@ -1,6 +1,6 @@
+use crate::pcalc_keywords as keywords;
 use std::cmp;
 use std::collections::HashMap;
-use crate::pcalc_keywords as keywords;
 
 // --------------------------------------------------------------------------------
 // Parser Error
@@ -17,7 +17,7 @@ impl LexerError {
         }
     }
 
-    pub fn message<'a>(&'a self) -> &'a str {
+    pub fn message(&self) -> &str {
         self.error_msg.as_str()
     }
 }
@@ -79,15 +79,12 @@ impl Lexer {
     pub fn token_type(&self, token: &str) -> Result<TokenType, LexerError> {
         if let Some(toktyp) = self.table.get(token) {
             Ok(*toktyp)
-        }
-        else if token.parse::<f64>().is_ok() {
+        } else if token.parse::<f64>().is_ok() {
             Ok(TokenType::Literal)
-        }
-        else {
+        } else {
             if Self::is_valid_identifier(token) {
                 Ok(TokenType::Identifier)
-            }
-            else {
+            } else {
                 Err(LexerError::invalid_identifier(token))
             }
         }
@@ -103,8 +100,7 @@ impl Lexer {
     pub fn next_token(&mut self) -> Option<Token> {
         if !self.tokens.is_empty() {
             Some(self.tokens.remove(0))
-        }
-        else {
+        } else {
             None
         }
     }
@@ -112,8 +108,7 @@ impl Lexer {
     pub fn peek_token(&self) -> Option<&Token> {
         if !self.tokens.is_empty() {
             Some(&self.tokens[0])
-        }
-        else {
+        } else {
             None
         }
     }
@@ -130,8 +125,7 @@ impl Lexer {
     // Private Functions
 
     fn is_valid_identifier(token: &str) -> bool {
-        token.starts_with(char::is_alphabetic) &&
-            token.find(|c: char| !c.is_alphanumeric() && c != '_').is_none()
+        token.starts_with(char::is_alphabetic) && token.find(|c: char| !c.is_alphanumeric() && c != '_').is_none()
     }
 
     fn make_token_types() -> HashMap<String, TokenType> {
@@ -155,6 +149,12 @@ impl Lexer {
         table.insert(String::from(keywords::SETVAR), TokenType::Assign);
 
         table
+    }
+}
+
+impl Default for Lexer {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
