@@ -59,6 +59,7 @@ OPTIONS:
 
   :env - Show calculator environment
   :reset - Reset calculator environment
+  :help - Print list of available operators and constants
   ```
   Variables
   ```

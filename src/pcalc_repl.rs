@@ -1,4 +1,5 @@
 use crate::pcalc_environment::Environment;
+use crate::pcalc_keywords as keywords;
 use crate::pcalc_parser::Parser;
 use crate::pcalc_value::Value;
 use std::io::{self, Write};
@@ -110,12 +111,37 @@ impl REPL {
         self.env.def(&self.last_var, Value::from_num(0.0)).unwrap();
     }
 
+    fn print_help(&self) {
+        fn print_list(title: &str, kws: &keywords::NameList) {
+            print!("{}: ", title);
+
+            let mut count: u32 = 0;
+            for sym in kws {
+                count += 1;
+                if count > 16 {
+                    print!("\n            ");
+                    count = 0;
+                }
+                print!("{} ", sym);
+            }
+
+            println!();
+        }
+
+        print_list("Binary Ops", &keywords::binary_ops());
+        print_list(" Unary Ops", &keywords::unary_ops());
+        print_list(" Constants", &keywords::constants());
+    }
+
     fn try_repl_command(&mut self, cmd: &str) -> bool {
         if cmd == ":env" {
             self.env.show();
             return true;
         } else if cmd == ":reset" {
             self.reset_env();
+            return true;
+        } else if cmd == ":help" {
+            self.print_help();
             return true;
         }
 
