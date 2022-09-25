@@ -129,16 +129,16 @@ impl Lexer {
     fn make_token_types() -> HashMap<String, TokenType> {
         let mut table: HashMap<String, TokenType> = HashMap::new();
 
-        for sym in keywords::binary_ops().iter() {
-            table.insert(String::from(*sym), TokenType::BinaryOp);
+        for sym in keywords::binary_ops() {
+            table.insert(String::from(sym), TokenType::BinaryOp);
         }
 
-        for sym in keywords::unary_ops().iter() {
-            table.insert(String::from(*sym), TokenType::UnaryOp);
+        for sym in keywords::unary_ops() {
+            table.insert(String::from(sym), TokenType::UnaryOp);
         }
 
-        for sym in keywords::constants().iter() {
-            table.insert(String::from(*sym), TokenType::Const);
+        for sym in keywords::constants() {
+            table.insert(String::from(sym), TokenType::Const);
         }
 
         table.insert(String::from(keywords::TRUE), TokenType::Literal);
@@ -182,15 +182,15 @@ mod tests {
     fn test_lexer_token_type() {
         let lexer = Lexer::new();
 
-        for sym in keywords::binary_ops().iter() {
+        for sym in keywords::binary_ops() {
             assert_eq!(lexer.token_type(sym).unwrap(), TokenType::BinaryOp);
         }
 
-        for sym in keywords::unary_ops().iter() {
+        for sym in keywords::unary_ops() {
             assert_eq!(lexer.token_type(sym).unwrap(), TokenType::UnaryOp);
         }
 
-        for sym in keywords::constants().iter() {
+        for sym in keywords::constants() {
             assert_eq!(lexer.token_type(sym).unwrap(), TokenType::Const);
         }
 
