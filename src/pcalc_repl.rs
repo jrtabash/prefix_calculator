@@ -4,6 +4,11 @@ use crate::pcalc_parser::Parser;
 use crate::pcalc_value::Value;
 use std::io::{self, Write};
 
+const CMD_ENV: &str = ":env";
+const CMD_RESET: &str = ":reset";
+const CMD_QUIT: &str = ":quit";
+const CMD_HELP: &str = ":help";
+
 pub struct REPL {
     prompt: String,
     last_var: String,
@@ -37,7 +42,7 @@ impl REPL {
             }
 
             let line_ref = line.trim();
-            if line_ref == ":quit" || line.is_empty() {
+            if line_ref == CMD_QUIT || line.is_empty() {
                 println!();
                 break;
             }
@@ -48,6 +53,14 @@ impl REPL {
 
             self.eval_and_print_line(line_ref);
         }
+    }
+
+    pub fn display_startup_msg(&self) {
+        println!("*****************************************************************");
+        println!("*                       Prefix Calculator                       *");
+        println!("*****************************************************************");
+        self.print_help();
+        println!("*****************************************************************");
     }
 
     // --------------------------------------------------------------------------------
@@ -118,8 +131,8 @@ impl REPL {
             let mut count: u32 = 0;
             for sym in kws {
                 count += 1;
-                if count > 16 {
-                    print!("\n            ");
+                if count > 8 {
+                    print!("\n               ");
                     count = 0;
                 }
                 print!("{} ", sym);
@@ -128,19 +141,21 @@ impl REPL {
             println!();
         }
 
-        print_list("Binary Ops", &keywords::binary_ops());
-        print_list(" Unary Ops", &keywords::unary_ops());
-        print_list(" Constants", &keywords::constants());
+        print_list("   Binary Ops", &keywords::binary_ops());
+        print_list("    Unary Ops", &keywords::unary_ops());
+        print_list("    Constants", &keywords::constants());
+        print_list(" Special Vars", &vec![&self.last_var]);
+        print_list("    REPL Cmds", &vec![CMD_ENV, CMD_RESET, CMD_QUIT, CMD_HELP]);
     }
 
     fn try_repl_command(&mut self, cmd: &str) -> bool {
-        if cmd == ":env" {
+        if cmd == CMD_ENV {
             self.env.show();
             return true;
-        } else if cmd == ":reset" {
+        } else if cmd == CMD_RESET {
             self.reset_env();
             return true;
-        } else if cmd == ":help" {
+        } else if cmd == CMD_HELP {
             self.print_help();
             return true;
         }

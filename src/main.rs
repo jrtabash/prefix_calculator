@@ -48,6 +48,9 @@ fn run_repl(args: &Arguments) {
         REPL::with_expr(&args.expr)
     };
     if args.expr.is_empty() || args.force_int {
+        if args.expr.is_empty() {
+            repl.display_startup_msg();
+        }
         repl.run();
     }
 }
