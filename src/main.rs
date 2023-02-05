@@ -48,15 +48,14 @@ fn parse_args() -> Arguments {
 }
 
 fn run_repl(args: &Arguments) {
-    let mut repl = if args.expr.is_empty() {
-        Default::default()
-    } else {
-        REPL::with_expr(&args.expr)
-    };
+    let mut repl = REPL::new();
+    if !args.quiet {
+        repl.display_startup_msg();
+    }
+    if !args.expr.is_empty() {
+        repl.eval_expr(&args.expr);
+    }
     if args.expr.is_empty() || args.force_int {
-        if args.expr.is_empty() && !args.quiet {
-            repl.display_startup_msg();
-        }
         repl.run();
     }
 }

@@ -28,10 +28,8 @@ impl REPL {
         repl
     }
 
-    pub fn with_expr(expr: &str) -> Self {
-        let mut repl = REPL::new();
-        repl.eval_and_print_line(expr);
-        repl
+    pub fn eval_expr(&mut self, expr: &str) {
+        self.eval_and_print_line(expr);
     }
 
     pub fn run(&mut self) {
@@ -161,11 +159,5 @@ impl REPL {
         }
 
         false
-    }
-}
-
-impl Default for REPL {
-    fn default() -> Self {
-        Self::new()
     }
 }
