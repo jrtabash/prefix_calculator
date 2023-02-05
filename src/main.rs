@@ -5,6 +5,7 @@ use prefix_calculator::pcalc_repl::REPL;
 
 struct Arguments {
     force_int: bool,
+    quiet: bool,
     expr: String
 }
 
@@ -24,6 +25,10 @@ fn parse_args() -> Arguments {
              .short("i")
              .long("int")
              .help("Force interactive mode. Use with -e/--expr option to force interactive mode"))
+        .arg(Arg::with_name("quiet")
+             .short("q")
+             .long("quiet")
+             .help("Disable startup message"))
         .arg(Arg::with_name("expr")
              .short("e")
              .long("expr")
@@ -34,6 +39,7 @@ fn parse_args() -> Arguments {
 
     Arguments {
         force_int: pargs.is_present("force_int"),
+        quiet: pargs.is_present("quiet"),
         expr: match pargs.value_of("expr") {
             Some(e) => String::from(e),
             None => String::new()
@@ -48,7 +54,7 @@ fn run_repl(args: &Arguments) {
         REPL::with_expr(&args.expr)
     };
     if args.expr.is_empty() || args.force_int {
-        if args.expr.is_empty() {
+        if args.expr.is_empty() && !args.quiet {
             repl.display_startup_msg();
         }
         repl.run();
