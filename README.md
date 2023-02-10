@@ -9,6 +9,7 @@ USAGE:
 FLAGS:
     -i, --int        Force interactive mode. Use with -e/--expr option to force interactive mode
     -h, --help       Prints help information
+    -q, --quiet      Disable startup message
     -V, --version    Prints version information
 
 OPTIONS:
