@@ -123,6 +123,27 @@ impl Code for BinaryOp {
 }
 
 // --------------------------------------------------------------------------------
+// Print
+
+pub struct Print {
+    expr: CodePtr
+}
+
+impl Print {
+    pub fn new(expr: CodePtr) -> Print {
+        Print { expr }
+    }
+}
+
+impl Code for Print {
+    fn eval(&self, env: &mut Environment) -> ValueResult {
+        let value = self.expr.eval(env)?;
+        println!("{}", value);
+        Ok(value)
+    }
+}
+
+// --------------------------------------------------------------------------------
 // UnaryOp
 
 pub struct UnaryOp {
@@ -210,5 +231,13 @@ mod tests {
 
         let uop = UnaryOp::new(uop2ftn("not").unwrap(), Box::new(Literal::new(Value::from_bool(false))));
         assert_eq!(uop.eval(&mut env).unwrap(), Value::from_bool(true));
+    }
+
+    #[test]
+    fn test_print() {
+        let mut env = Environment::new();
+
+        let prt = Print::new(Box::new(Literal::new(Value::from_num(5.0))));
+        assert_eq!(prt.eval(&mut env).unwrap(), Value::from_num(5.0));
     }
 }

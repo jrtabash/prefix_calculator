@@ -165,6 +165,7 @@ impl REPL {
 
         print_list("   Binary Ops", &keywords::binary_ops());
         print_list("    Unary Ops", &keywords::unary_ops());
+        print_list(" Special Ftns", &keywords::special_ftns());
         print_list("    Constants", &keywords::constants());
         print_list(" Special Vars", &vec![&self.last_var]);
         print_list("    REPL Cmds", &vec![CMD_ENV, CMD_RESET, CMD_QUIT, CMD_BATCH, CMD_LAST, CMD_HELP]);

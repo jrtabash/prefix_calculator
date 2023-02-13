@@ -65,6 +65,9 @@ pub const NOT: &str = "not";
 pub const ASNUM: &str = "asnum";
 pub const ASBOOL: &str = "asbool";
 
+// Special Functions
+pub const PRINT: &str = "print";
+
 // --------------------------------------------------------------------------------
 // Keyword Functions
 
@@ -87,6 +90,12 @@ pub fn unary_ops() -> NameList<'static> {
          CEIL, FLOOR, ROUND,
          NEG, NOT,
          ASNUM, ASBOOL]
+}
+
+#[inline(always)]
+#[rustfmt::skip]
+pub fn special_ftns() -> NameList<'static> {
+    vec![PRINT]
 }
 
 #[inline(always)]

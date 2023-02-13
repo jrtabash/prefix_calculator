@@ -29,6 +29,7 @@ impl LexerError {
 pub enum TokenType {
     BinaryOp,
     UnaryOp,
+    SpecialFtn,
     Literal,
     Const,
     Define,
@@ -137,6 +138,10 @@ impl Lexer {
             table.insert(String::from(sym), TokenType::UnaryOp);
         }
 
+        for sym in keywords::special_ftns() {
+            table.insert(String::from(sym), TokenType::SpecialFtn);
+        }
+
         for sym in keywords::constants() {
             table.insert(String::from(sym), TokenType::Const);
         }
@@ -188,6 +193,10 @@ mod tests {
 
         for sym in keywords::unary_ops() {
             assert_eq!(lexer.token_type(sym).unwrap(), TokenType::UnaryOp);
+        }
+
+        for sym in keywords::special_ftns() {
+            assert_eq!(lexer.token_type(sym).unwrap(), TokenType::SpecialFtn);
         }
 
         for sym in keywords::constants() {

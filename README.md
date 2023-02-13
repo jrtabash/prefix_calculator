@@ -52,6 +52,10 @@ OPTIONS:
   neg, not,
   asnum, asbool
   ```
+- Special functions
+  ```
+  print
+  ```
 - REPL
 
   Commands
