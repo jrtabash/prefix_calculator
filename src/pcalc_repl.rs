@@ -26,7 +26,7 @@ impl REPL {
             last_var: String::from("last"),
             env: Default::default(),
             parser: Default::default(),
-            batch: batch
+            batch
         };
         repl.reset_env();
         repl

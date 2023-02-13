@@ -54,7 +54,7 @@ OPTIONS:
   ```
 - Special functions
   ```
-  print
+  xprint - Execute and print expression
   ```
 - REPL
 
@@ -103,7 +103,9 @@ OPTIONS:
   batch mode on
   > var x 3
   > var y 4
-  > sqrt + ^ x 2 ^ y 2
+  > var z sqrt + ^ x 2 ^ y 2
+  > xprint z
+  5
   > :last
   5
   >

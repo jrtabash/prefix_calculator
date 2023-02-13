@@ -66,7 +66,7 @@ pub const ASNUM: &str = "asnum";
 pub const ASBOOL: &str = "asbool";
 
 // Special Functions
-pub const PRINT: &str = "print";
+pub const XPRINT: &str = "xprint";
 
 // --------------------------------------------------------------------------------
 // Keyword Functions
@@ -95,7 +95,7 @@ pub fn unary_ops() -> NameList<'static> {
 #[inline(always)]
 #[rustfmt::skip]
 pub fn special_ftns() -> NameList<'static> {
-    vec![PRINT]
+    vec![XPRINT]
 }
 
 #[inline(always)]

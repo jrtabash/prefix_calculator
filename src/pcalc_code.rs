@@ -123,19 +123,19 @@ impl Code for BinaryOp {
 }
 
 // --------------------------------------------------------------------------------
-// Print
+// XPrint - Execute and Print Expression
 
-pub struct Print {
+pub struct XPrint {
     expr: CodePtr
 }
 
-impl Print {
-    pub fn new(expr: CodePtr) -> Print {
-        Print { expr }
+impl XPrint {
+    pub fn new(expr: CodePtr) -> XPrint {
+        XPrint { expr }
     }
 }
 
-impl Code for Print {
+impl Code for XPrint {
     fn eval(&self, env: &mut Environment) -> ValueResult {
         let value = self.expr.eval(env)?;
         println!("{}", value);
@@ -237,7 +237,7 @@ mod tests {
     fn test_print() {
         let mut env = Environment::new();
 
-        let prt = Print::new(Box::new(Literal::new(Value::from_num(5.0))));
-        assert_eq!(prt.eval(&mut env).unwrap(), Value::from_num(5.0));
+        let xprt = XPrint::new(Box::new(Literal::new(Value::from_num(5.0))));
+        assert_eq!(xprt.eval(&mut env).unwrap(), Value::from_num(5.0));
     }
 }

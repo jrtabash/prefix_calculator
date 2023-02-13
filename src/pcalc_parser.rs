@@ -1,9 +1,9 @@
 use crate::pcalc_binary_ops::bop2ftn;
-use crate::pcalc_code::{BinaryOp, CodePtr, DefVar, GetVar, Literal, SetVar, UnaryOp, Print};
+use crate::pcalc_code::{BinaryOp, CodePtr, DefVar, GetVar, Literal, SetVar, UnaryOp, XPrint};
+use crate::pcalc_keywords as keywords;
 use crate::pcalc_lexer::{Lexer, LexerError, TokenType};
 use crate::pcalc_unary_ops::uop2ftn;
 use crate::pcalc_value::Value;
-use crate::pcalc_keywords as keywords;
 use std::f64::consts;
 use std::fmt;
 
@@ -174,7 +174,7 @@ impl Parser {
 
     fn make_special_ftn(&mut self, name: &str) -> ParserResult {
         match name {
-            keywords::PRINT => Ok(Box::new(Print::new(self.make_code()?))),
+            keywords::XPRINT => Ok(Box::new(XPrint::new(self.make_code()?))),
             _ => Err(ParserError::new(&format!("Unknown special ftn - {}", name)))
         }
     }
@@ -329,11 +329,11 @@ mod tests {
     }
 
     #[test]
-    fn test_parser_special_ftn() {
+    fn test_parser_special_ftn_xprint() {
         let mut env = Environment::new();
         let mut parser = Parser::new();
-        test_parse(&mut parser, &mut env, "print 10", Value::from_num(10.0));
-        test_parse(&mut parser, &mut env, "print true", Value::from_bool(true));
+        test_parse(&mut parser, &mut env, "xprint 10", Value::from_num(10.0));
+        test_parse(&mut parser, &mut env, "xprint true", Value::from_bool(true));
     }
 
     fn test_parse(parser: &mut Parser, env: &mut Environment, expr: &str, value: Value) {
