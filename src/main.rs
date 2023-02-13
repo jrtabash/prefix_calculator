@@ -6,6 +6,7 @@ use prefix_calculator::pcalc_repl::REPL;
 struct Arguments {
     force_int: bool,
     quiet: bool,
+    batch: bool,
     expr: String
 }
 
@@ -29,6 +30,10 @@ fn parse_args() -> Arguments {
              .short("q")
              .long("quiet")
              .help("Disable startup message"))
+        .arg(Arg::with_name("batch")
+             .short("-b")
+             .long("batch")
+             .help("Batch mode"))
         .arg(Arg::with_name("expr")
              .short("e")
              .long("expr")
@@ -40,6 +45,7 @@ fn parse_args() -> Arguments {
     Arguments {
         force_int: pargs.is_present("force_int"),
         quiet: pargs.is_present("quiet"),
+        batch: pargs.is_present("batch"),
         expr: match pargs.value_of("expr") {
             Some(e) => String::from(e),
             None => String::new()
@@ -48,7 +54,7 @@ fn parse_args() -> Arguments {
 }
 
 fn run_repl(args: &Arguments) {
-    let mut repl = REPL::new();
+    let mut repl = REPL::new(args.batch);
     if !args.quiet {
         repl.display_startup_msg();
     }

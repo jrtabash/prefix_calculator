@@ -7,22 +7,26 @@ use std::io::{self, Write};
 const CMD_ENV: &str = ":env";
 const CMD_RESET: &str = ":reset";
 const CMD_QUIT: &str = ":quit";
+const CMD_BATCH: &str = ":batch";
+const CMD_LAST: &str = ":last";
 const CMD_HELP: &str = ":help";
 
 pub struct REPL {
     prompt: String,
     last_var: String,
     env: Environment,
-    parser: Parser
+    parser: Parser,
+    batch: bool
 }
 
 impl REPL {
-    pub fn new() -> Self {
+    pub fn new(batch: bool) -> Self {
         let mut repl = REPL {
             prompt: String::from("> "),
             last_var: String::from("last"),
             env: Default::default(),
-            parser: Default::default()
+            parser: Default::default(),
+            batch: batch
         };
         repl.reset_env();
         repl
@@ -58,6 +62,8 @@ impl REPL {
         println!("*                       Prefix Calculator                       *");
         println!("*****************************************************************");
         self.print_help();
+        println!("*****************************************************************");
+        self.print_batch();
         println!("*****************************************************************");
     }
 
@@ -101,7 +107,9 @@ impl REPL {
         match self.parser.parse(expr) {
             Ok(code) => match code.eval(&mut self.env) {
                 Ok(value) => {
-                    println!("{}", value);
+                    if !self.batch {
+                        println!("{}", value);
+                    }
                     self.env.set(&self.last_var, value).unwrap();
                     true
                 }
@@ -120,6 +128,22 @@ impl REPL {
     fn reset_env(&mut self) {
         self.env.reset();
         self.env.def(&self.last_var, Value::from_num(0.0)).unwrap();
+    }
+
+    fn toggle_batch(&mut self) {
+        self.batch = !self.batch;
+        self.print_batch();
+    }
+
+    fn print_batch(&self) {
+        println!("batch mode {}", if self.batch { "on" } else { "off" });
+    }
+
+    fn print_last(&self) {
+        match self.env.get(&self.last_var) {
+            Ok(val) => println!("{}", val),
+            Err(err) => eprintln!("ParseError: {}", err)
+        };
     }
 
     fn print_help(&self) {
@@ -143,7 +167,7 @@ impl REPL {
         print_list("    Unary Ops", &keywords::unary_ops());
         print_list("    Constants", &keywords::constants());
         print_list(" Special Vars", &vec![&self.last_var]);
-        print_list("    REPL Cmds", &vec![CMD_ENV, CMD_RESET, CMD_QUIT, CMD_HELP]);
+        print_list("    REPL Cmds", &vec![CMD_ENV, CMD_RESET, CMD_QUIT, CMD_BATCH, CMD_LAST, CMD_HELP]);
     }
 
     fn try_repl_command(&mut self, cmd: &str) -> bool {
@@ -152,6 +176,12 @@ impl REPL {
             return true;
         } else if cmd == CMD_RESET {
             self.reset_env();
+            return true;
+        } else if cmd == CMD_BATCH {
+            self.toggle_batch();
+            return true;
+        } else if cmd == CMD_LAST {
+            self.print_last();
             return true;
         } else if cmd == CMD_HELP {
             self.print_help();

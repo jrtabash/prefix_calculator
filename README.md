@@ -7,6 +7,7 @@ USAGE:
     prefix_calculator [FLAGS] [OPTIONS]
 
 FLAGS:
+    -b, --batch      Batch mode
     -i, --int        Force interactive mode. Use with -e/--expr option to force interactive mode
     -h, --help       Prints help information
     -q, --quiet      Disable startup message
@@ -60,6 +61,8 @@ OPTIONS:
 
   :env - Show calculator environment
   :reset - Reset calculator environment
+  :batch - Toggle batch mode
+  :last - Show last value
   :help - Print list of available operators and constants
   ```
   Variables
