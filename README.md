@@ -7,7 +7,7 @@ USAGE:
     prefix_calculator [FLAGS] [OPTIONS]
 
 FLAGS:
-    -b, --batch      Batch mode
+    -b, --batch      Enable batch mode
     -i, --int        Force interactive mode. Use with -e/--expr option to force interactive mode
     -h, --help       Prints help information
     -q, --quiet      Disable startup message
@@ -73,7 +73,7 @@ OPTIONS:
   ```
   Use semicolon ; to separate multiple expressions on the same line
   ```
-- Example
+- Example 1
   ```
   > var x 5
   5
@@ -92,4 +92,15 @@ OPTIONS:
   > + 5 asnum true
   6
   > :quit
+  ```
+- Example 2
+  ```
+  > :batch
+  batch mode on
+  > var x 3
+  > var y 4
+  > sqrt + ^ x 2 ^ y 2
+  > :last
+  5
+  >
   ```

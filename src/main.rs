@@ -33,7 +33,7 @@ fn parse_args() -> Arguments {
         .arg(Arg::with_name("batch")
              .short("-b")
              .long("batch")
-             .help("Batch mode"))
+             .help("Enable batch mode"))
         .arg(Arg::with_name("expr")
              .short("e")
              .long("expr")
