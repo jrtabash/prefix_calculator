@@ -18,19 +18,6 @@ struct PCalcCmd {
     expected: String
 }
 
-impl Drop for PCalcCmd {
-    fn drop(&mut self) {
-        if !self.file.is_empty() {
-            let path = PathBuf::from(self.file.as_str());
-            if path.exists() {
-                if fs::remove_file(path.as_path()).is_err() {
-                    eprintln!("Drop - failed to remove {}", self.file);
-                }
-            }
-        }
-    }
-}
-
 impl PCalcCmd {
     pub fn new() -> Self {
         PCalcCmd {
@@ -102,6 +89,22 @@ impl PCalcCmd {
         };
     }
 }
+
+impl Drop for PCalcCmd {
+    fn drop(&mut self) {
+        if !self.file.is_empty() {
+            let path = PathBuf::from(self.file.as_str());
+            if path.exists() {
+                if fs::remove_file(path.as_path()).is_err() {
+                    eprintln!("Drop - failed to remove {}", self.file);
+                }
+            }
+        }
+    }
+}
+
+// --------------------------------------------------------------------------------
+// TESTS
 
 #[test]
 fn test_pcalc_no_output() {
