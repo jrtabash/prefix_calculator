@@ -7,7 +7,8 @@ struct Arguments {
     force_int: bool,
     quiet: bool,
     batch: bool,
-    expr: String
+    expr: String,
+    file: String
 }
 
 fn main() {
@@ -37,8 +38,16 @@ fn parse_args() -> Arguments {
         .arg(Arg::with_name("expr")
              .short("e")
              .long("expr")
-             .help("Evaluate expression. Use -i/--int to force interactive mode. \
-                    Use semicolon ; to separate multiple expressions.")
+             .help("Evaluate expression. Use -i/--int to force interactive mode.\n\
+                    Use semicolon ; to separate multiple expressions.\n\
+                    Evaluated after -f/--file expression file")
+             .takes_value(true))
+        .arg(Arg::with_name("file")
+             .short("f")
+             .long("file")
+             .help("Evaluate expression file. Use -i/--int to force interactive mode.\n\
+                    Can use semicolon ; to separate multiple expressions on a single line.\n\
+                    Evaluated before -e/--expr expressions")
              .takes_value(true))
         .get_matches();
 
@@ -49,6 +58,10 @@ fn parse_args() -> Arguments {
         expr: match pargs.value_of("expr") {
             Some(e) => String::from(e),
             None => String::new()
+        },
+        file: match pargs.value_of("file") {
+            Some(f) => String::from(f),
+            None => String::new()
         }
     }
 }
@@ -58,10 +71,13 @@ fn run_repl(args: &Arguments) {
     if !args.quiet {
         repl.display_startup_msg();
     }
+    if !args.file.is_empty() {
+        repl.load_file(&args.file);
+    }
     if !args.expr.is_empty() {
         repl.eval_expr(&args.expr);
     }
-    if args.expr.is_empty() || args.force_int {
+    if (args.file.is_empty() && args.expr.is_empty()) || args.force_int {
         repl.run();
     }
 }

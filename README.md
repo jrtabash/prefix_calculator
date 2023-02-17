@@ -14,8 +14,12 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -e, --expr <expr>    Evaluate expression. Use -i/--int to force interactive mode. Use semicolon ; to separate
-                         multiple expressions.
+    -e, --expr <expr>    Evaluate expression. Use -i/--int to force interactive mode.
+                         Use semicolon ; to separate multiple expressions.
+                         Evaluated after -f/--file expression file
+    -f, --file <file>    Evaluate expression file. Use -i/--int to force interactive mode.
+                         Can use semicolon ; to separate multiple expressions on a single line.
+                         Evaluated before -e/--expr expressions
 ```
 
 ## Supported features

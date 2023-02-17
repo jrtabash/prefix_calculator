@@ -2,7 +2,9 @@ use crate::pcalc_environment::Environment;
 use crate::pcalc_keywords as keywords;
 use crate::pcalc_parser::Parser;
 use crate::pcalc_value::Value;
-use std::io::{self, Write};
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::{self, BufReader, Write};
 
 const CMD_ENV: &str = ":env";
 const CMD_RESET: &str = ":reset";
@@ -32,8 +34,25 @@ impl REPL {
         repl
     }
 
+    #[inline(always)]
     pub fn eval_expr(&mut self, expr: &str) {
         self.eval_and_print_line(expr);
+    }
+
+    pub fn load_file(&mut self, filename: &str) {
+        match File::open(filename) {
+            Ok(file) => {
+                let mut reader = BufReader::new(file);
+                let mut content = String::new();
+                match reader.read_to_string(&mut content) {
+                    Ok(_) => {
+                        self.eval_and_print_multi_line(&content);
+                    }
+                    Err(e) => eprintln!("Load file error: {}", e)
+                }
+            }
+            Err(e) => eprintln!("Load file error: {}", e)
+        };
     }
 
     pub fn run(&mut self) {
@@ -91,16 +110,28 @@ impl REPL {
         }
     }
 
-    fn eval_and_print_line(&mut self, line: &str) {
+    fn eval_and_print_line(&mut self, line: &str) -> bool {
         for sub_expr in line.split(';').map(|e| e.trim()) {
             if sub_expr.is_empty() {
                 continue;
             }
-
             if !self.eval_and_print(sub_expr) {
-                break;
+                return false;
             }
         }
+        true
+    }
+
+    fn eval_and_print_multi_line(&mut self, exprs: &str) -> bool {
+        for line in exprs.lines() {
+            if line.is_empty() {
+                continue;
+            }
+            if !self.eval_and_print_line(line) {
+                return false;
+            }
+        }
+        true
     }
 
     fn eval_and_print(&mut self, expr: &str) -> bool {
