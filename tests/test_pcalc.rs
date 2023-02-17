@@ -157,3 +157,25 @@ fn test_pcalc_file() {
         .expect_output("5")
         .run();
 }
+
+#[test]
+fn test_pcalc_file_multi_expr_line() {
+    PCalcCmd::new()
+        .add_expr("xprint C")
+        .with_file(
+            "test_pcalc_file_multi_expr_line",
+            "var F 50; var C - F 32\n\
+             = C / * C 5 9"
+        )
+        .expect_output("10")
+        .run();
+}
+
+#[test]
+fn test_pcalc_empty_file() {
+    PCalcCmd::new()
+        .add_expr("xprint last")
+        .with_file("test_pcalc_empty_fie", "")
+        .expect_output("0")
+        .run();
+}
