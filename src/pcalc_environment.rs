@@ -37,14 +37,17 @@ impl Environment {
         }
     }
 
+    #[inline(always)]
     pub fn reset(&mut self) {
         self.table.clear();
     }
 
+    #[inline(always)]
     pub fn len(&self) -> usize {
         self.table.len()
     }
 
+    #[inline(always)]
     pub fn is_empty(&self) -> bool {
         self.table.is_empty()
     }
