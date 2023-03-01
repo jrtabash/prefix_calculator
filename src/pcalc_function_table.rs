@@ -1,6 +1,5 @@
 use crate::pcalc_function::*;
 use std::collections::HashMap;
-use std::fmt;
 
 pub struct FunctionTable {
     funcs: HashMap<String, Function>
@@ -44,15 +43,16 @@ impl FunctionTable {
 
     pub fn show(&self) {
         let width = self.funcs.iter().map(|kv| kv.0.len()).max().unwrap_or(0);
-        Self::prt_name_value(width, "Func", "Params");
-        Self::prt_name_value(width, "----", "------");
-        for (name, func) in &self.funcs {
-            Self::prt_name_value(width, name, &format!("({})", func.parameters().join(", ")));
-        }
-    }
 
-    fn prt_name_value<Value: fmt::Display + ?Sized>(width: usize, name: &str, value: &Value) {
-        println!("{name:<width$}   {value}", name = name, width = width, value = value);
+        let prt_row = |name: &str, value: &str| {
+            println!("{name:<width$}   {value}", name = name, width = width, value = value);
+        };
+
+        prt_row("Func", "Params");
+        prt_row("----", "------");
+        for (name, func) in &self.funcs {
+            prt_row(name, &format!("({})", func.parameters().join(", ")));
+        }
     }
 }
 
