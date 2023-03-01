@@ -123,27 +123,6 @@ impl Code for BinaryOp {
 }
 
 // --------------------------------------------------------------------------------
-// XPrint - Execute and Print Expression
-
-pub struct XPrint {
-    expr: CodePtr
-}
-
-impl XPrint {
-    pub fn new(expr: CodePtr) -> XPrint {
-        XPrint { expr }
-    }
-}
-
-impl Code for XPrint {
-    fn eval(&self, env: &mut Environment) -> ValueResult {
-        let value = self.expr.eval(env)?;
-        println!("{}", value);
-        Ok(value)
-    }
-}
-
-// --------------------------------------------------------------------------------
 // UnaryOp
 
 pub struct UnaryOp {
@@ -161,6 +140,27 @@ impl Code for UnaryOp {
     fn eval(&self, env: &mut Environment) -> ValueResult {
         let value = self.arg.eval(env)?;
         (self.op_ftn)(&value)
+    }
+}
+
+// --------------------------------------------------------------------------------
+// XPrint - Execute and Print Expression
+
+pub struct XPrint {
+    expr: CodePtr
+}
+
+impl XPrint {
+    pub fn new(expr: CodePtr) -> XPrint {
+        XPrint { expr }
+    }
+}
+
+impl Code for XPrint {
+    fn eval(&self, env: &mut Environment) -> ValueResult {
+        let value = self.expr.eval(env)?;
+        println!("{}", value);
+        Ok(value)
     }
 }
 
