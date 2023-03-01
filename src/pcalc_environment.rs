@@ -78,13 +78,23 @@ mod tests {
     #[test]
     fn test_environment() {
         let mut env = Environment::new();
+        assert_eq!(env.len(), 0);
+        assert!(env.is_empty());
 
         env.def("x", Value::from_num(10.0)).unwrap();
         assert_eq!(env.get("x").unwrap(), Value::from_num(10.0));
+        assert_eq!(env.len(), 1);
+        assert!(!env.is_empty());
 
         env.set("x", Value::from_num(15.0)).unwrap();
         assert_eq!(env.get("x").unwrap(), Value::from_num(15.0));
+        assert_eq!(env.len(), 1);
+        assert!(!env.is_empty());
 
         assert!(env.get("y").is_err());
+
+        env.reset();
+        assert_eq!(env.len(), 0);
+        assert!(env.is_empty());
     }
 }
