@@ -1,7 +1,33 @@
 use crate::pcalc_code::CodePtr;
 use crate::pcalc_environment::Environment;
 use crate::pcalc_value::{Value, ValueError, ValueResult};
+use std::fmt;
 use std::iter::zip;
+
+// --------------------------------------------------------------------------------
+// Function Error
+
+#[derive(Debug, Clone)]
+pub struct FunctionError {
+    error_msg: String
+}
+
+impl FunctionError {
+    pub fn new(err_msg: &str) -> Self {
+        FunctionError {
+            error_msg: String::from(err_msg)
+        }
+    }
+}
+
+impl fmt::Display for FunctionError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.error_msg)
+    }
+}
+
+// --------------------------------------------------------------------------------
+// Function
 
 pub type Parameters = Vec<String>;
 pub type Arguments = Vec<CodePtr>;
@@ -15,6 +41,11 @@ pub struct Function {
 impl Function {
     pub fn new(params: Parameters, body: Expressions) -> Self {
         Function { params, body }
+    }
+
+    #[inline(always)]
+    pub fn parameters(&self) -> &Parameters {
+        &self.params
     }
 
     pub fn eval(&self, call_env: &mut Environment, args: &Arguments) -> ValueResult {
@@ -35,6 +66,11 @@ impl Function {
         Ok(result)
     }
 }
+
+// --------------------------------------------------------------------------------
+// Function
+
+pub type FunctionResult<'a> = Result<&'a Function, FunctionError>;
 
 // --------------------------------------------------------------------------------
 // Unit Tests
