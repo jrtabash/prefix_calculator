@@ -25,7 +25,7 @@ impl LexerError {
 // --------------------------------------------------------------------------------
 // TokenType
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TokenType {
     BinaryOp,
     UnaryOp,
