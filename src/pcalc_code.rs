@@ -1,5 +1,6 @@
 use crate::pcalc_binary_ops::BinaryFtn;
 use crate::pcalc_environment::Environment;
+use crate::pcalc_function::{Arguments, Expressions, Function, FunctionPtr, Parameters};
 use crate::pcalc_unary_ops::UnaryFtn;
 use crate::pcalc_value::{Value, ValueResult};
 use std::fmt;
@@ -55,7 +56,7 @@ impl DefVar {
 impl Code for DefVar {
     fn eval(&self, env: &mut Environment) -> ValueResult {
         let value = self.code.eval(env)?;
-        env.def(&self.name, value)
+        env.def_var(&self.name, value)
     }
 }
 
@@ -76,7 +77,7 @@ impl SetVar {
 impl Code for SetVar {
     fn eval(&self, env: &mut Environment) -> ValueResult {
         let value = self.code.eval(env)?;
-        env.set(&self.name, value)
+        env.set_var(&self.name, value)
     }
 }
 
@@ -95,7 +96,7 @@ impl GetVar {
 
 impl Code for GetVar {
     fn eval(&self, env: &mut Environment) -> ValueResult {
-        env.get(&self.name)
+        env.get_var(&self.name)
     }
 }
 
@@ -165,6 +166,51 @@ impl Code for XPrint {
 }
 
 // --------------------------------------------------------------------------------
+// Defun - Define Function
+
+pub struct Defun {
+    name: String,
+    func: FunctionPtr
+}
+
+impl Defun {
+    pub fn new(name: String, params: Parameters, body: Expressions) -> Self {
+        Defun {
+            name,
+            func: FunctionPtr::new(Function::new(params, body))
+        }
+    }
+}
+
+impl Code for Defun {
+    fn eval(&self, env: &mut Environment) -> ValueResult {
+        env.def_func(&self.name, &self.func);
+        Ok(Value::from_bool(true))
+    }
+}
+
+// --------------------------------------------------------------------------------
+// Funcall - Function Call
+
+pub struct Funcall {
+    name: String,
+    args: Arguments
+}
+
+impl Funcall {
+    pub fn new(name: String, args: Arguments) -> Self {
+        Funcall { name, args }
+    }
+}
+
+impl Code for Funcall {
+    fn eval(&self, env: &mut Environment) -> ValueResult {
+        let func = FunctionPtr::clone(env.get_func(&self.name)?);
+        func.eval(env, &self.args)
+    }
+}
+
+// --------------------------------------------------------------------------------
 // Unit Tests
 
 #[cfg(test)]
@@ -193,11 +239,11 @@ mod tests {
 
         let defvar = DefVar::new(String::from("x"), Box::new(Literal::new(Value::from_num(5.0))));
         assert_eq!(defvar.eval(&mut env).unwrap(), Value::from_num(5.0));
-        assert_eq!(env.get("x").unwrap(), Value::from_num(5.0));
+        assert_eq!(env.get_var("x").unwrap(), Value::from_num(5.0));
 
         let setvar = SetVar::new(String::from("x"), Box::new(Literal::new(Value::from_num(10.0))));
         assert_eq!(setvar.eval(&mut env).unwrap(), Value::from_num(10.0));
-        assert_eq!(env.get("x").unwrap(), Value::from_num(10.0));
+        assert_eq!(env.get_var("x").unwrap(), Value::from_num(10.0));
 
         let getvar = GetVar::new(String::from("x"));
         assert_eq!(getvar.eval(&mut env).unwrap(), Value::from_num(10.0));
@@ -239,5 +285,61 @@ mod tests {
 
         let xprt = XPrint::new(Box::new(Literal::new(Value::from_num(5.0))));
         assert_eq!(xprt.eval(&mut env).unwrap(), Value::from_num(5.0));
+    }
+
+    #[test]
+    fn test_defun() {
+        let mut func_env = Environment::new();
+        let mut call_env = Environment::new();
+        call_env.def_var("z", Value::from_num(6.0)).unwrap();
+
+        let mut params = Parameters::new();
+        params.push(String::from("x"));
+        params.push(String::from("y"));
+
+        let mut exprs = Expressions::new();
+        exprs.push(Box::new(BinaryOp::new(
+            bop2ftn("+").unwrap(),
+            Box::new(GetVar::new(String::from("x"))),
+            Box::new(GetVar::new(String::from("y")))
+        )));
+
+        let defun = Defun::new("my_add".to_string(), params, exprs);
+        assert_eq!(defun.eval(&mut func_env).unwrap(), Value::from_bool(true));
+
+        let my_add = func_env.get_func("my_add").unwrap();
+
+        let mut args = Arguments::new();
+        args.push(Box::new(Literal::new(Value::from_num(4.0))));
+        args.push(Box::new(GetVar::new(String::from("z"))));
+
+        assert_eq!(my_add.eval(&mut call_env, &args).unwrap(), Value::from_num(10.0));
+    }
+
+    #[test]
+    fn test_funcall() {
+        let mut call_env = Environment::new();
+        call_env.def_var("z", Value::from_num(6.0)).unwrap();
+
+        let mut params = Parameters::new();
+        params.push(String::from("x"));
+        params.push(String::from("y"));
+
+        let mut exprs = Expressions::new();
+        exprs.push(Box::new(BinaryOp::new(
+            bop2ftn("+").unwrap(),
+            Box::new(GetVar::new(String::from("x"))),
+            Box::new(GetVar::new(String::from("y")))
+        )));
+
+        let defun = Defun::new("my_add".to_string(), params, exprs);
+        assert_eq!(defun.eval(&mut call_env).unwrap(), Value::from_bool(true));
+
+        let mut args = Arguments::new();
+        args.push(Box::new(Literal::new(Value::from_num(4.0))));
+        args.push(Box::new(GetVar::new(String::from("z"))));
+
+        let funcall = Funcall::new("my_add".to_string(), args);
+        assert_eq!(funcall.eval(&mut call_env).unwrap(), Value::from_num(10.0));
     }
 }

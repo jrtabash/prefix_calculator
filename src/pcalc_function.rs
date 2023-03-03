@@ -3,6 +3,7 @@ use crate::pcalc_environment::Environment;
 use crate::pcalc_value::{Value, ValueError, ValueResult};
 use std::fmt;
 use std::iter::zip;
+use std::rc::Rc;
 
 // --------------------------------------------------------------------------------
 // Function Error
@@ -17,6 +18,12 @@ impl FunctionError {
         FunctionError {
             error_msg: String::from(err_msg)
         }
+    }
+}
+
+impl From<FunctionError> for ValueError {
+    fn from(item: FunctionError) -> Self {
+        ValueError::new(&item.error_msg)
     }
 }
 
@@ -55,7 +62,7 @@ impl Function {
 
         let mut func_env: Environment = Default::default();
         for (param, arg) in zip(&self.params, args) {
-            func_env.def(param, arg.eval(call_env)?)?;
+            func_env.def_var(param, arg.eval(call_env)?)?;
         }
 
         let mut result = Value::from_num(0.0);
@@ -68,9 +75,11 @@ impl Function {
 }
 
 // --------------------------------------------------------------------------------
-// Function
+// Function Types
 
-pub type FunctionResult<'a> = Result<&'a Function, FunctionError>;
+pub type FunctionPtr = Rc<Function>;
+
+pub type FunctionResult<'a> = Result<&'a FunctionPtr, FunctionError>;
 
 // --------------------------------------------------------------------------------
 // Unit Tests
@@ -119,7 +128,7 @@ mod tests {
     #[test]
     fn test_function_add_arguments() {
         let mut call_env = Environment::new();
-        call_env.def("z", Value::from_num(6.0)).unwrap();
+        call_env.def_var("z", Value::from_num(6.0)).unwrap();
 
         let mut params = Parameters::new();
         params.push(String::from("x"));
@@ -143,7 +152,7 @@ mod tests {
     #[test]
     fn test_function_multi_expr() {
         let mut call_env = Environment::new();
-        call_env.def("z", Value::from_num(6.0)).unwrap();
+        call_env.def_var("z", Value::from_num(6.0)).unwrap();
 
         let mut params = Parameters::new();
         params.push(String::from("x"));
@@ -175,7 +184,7 @@ mod tests {
     #[test]
     fn test_function_temperature() {
         let mut call_env = Environment::new();
-        call_env.def("temp", Value::from_num(54.0)).unwrap();
+        call_env.def_var("temp", Value::from_num(54.0)).unwrap();
 
         let mut params = Parameters::new();
         params.push(String::from("fahrenheit"));

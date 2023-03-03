@@ -1,68 +1,75 @@
-use crate::pcalc_value::{Value, ValueError, ValueResult};
-use std::collections::HashMap;
-use std::fmt;
+use crate::pcalc_function::{FunctionPtr, FunctionResult};
+use crate::pcalc_function_table::FunctionTable;
+use crate::pcalc_value::{Value, ValueResult};
+use crate::pcalc_variable_table::VariableTable;
 
 pub struct Environment {
-    table: HashMap<String, Value>
+    vars: VariableTable,
+    funcs: FunctionTable
 }
 
 impl Environment {
     pub fn new() -> Self {
-        Environment { table: HashMap::new() }
-    }
-
-    pub fn get(&self, name: &str) -> ValueResult {
-        if let Some(value) = self.table.get(name) {
-            Ok(*value)
-        } else {
-            Err(ValueError::new(&format!("Unknown variable '{}'", name)))
+        Environment {
+            vars: VariableTable::new(),
+            funcs: FunctionTable::new()
         }
     }
 
-    pub fn def(&mut self, name: &str, value: Value) -> ValueResult {
-        if !self.table.contains_key(name) {
-            self.table.insert(String::from(name), value);
-            Ok(value)
-        } else {
-            Err(ValueError::new(&format!("Duplicate variable definition '{}'", name)))
-        }
+    #[inline(always)]
+    pub fn get_var(&self, name: &str) -> ValueResult {
+        self.vars.get(name)
     }
 
-    pub fn set(&mut self, name: &str, value: Value) -> ValueResult {
-        if let Some(val) = self.table.get_mut(name) {
-            *val = value;
-            Ok(value)
-        } else {
-            Err(ValueError::new(&format!("Unknown variable '{}'", name)))
-        }
+    #[inline(always)]
+    pub fn def_var(&mut self, name: &str, value: Value) -> ValueResult {
+        self.vars.def(name, value)
+    }
+
+    #[inline(always)]
+    pub fn set_var(&mut self, name: &str, value: Value) -> ValueResult {
+        self.vars.set(name, value)
+    }
+
+    #[inline(always)]
+    pub fn get_func(&self, name: &str) -> FunctionResult {
+        self.funcs.get(name)
+    }
+
+    #[inline(always)]
+    pub fn def_func(&mut self, name: &str, func: &FunctionPtr) {
+        self.funcs.def(name, func);
     }
 
     #[inline(always)]
     pub fn reset(&mut self) {
-        self.table.clear();
+        self.vars.reset();
+        self.funcs.reset();
     }
 
     #[inline(always)]
     pub fn len(&self) -> usize {
-        self.table.len()
+        self.vars.len() + self.funcs.len()
     }
 
     #[inline(always)]
     pub fn is_empty(&self) -> bool {
-        self.table.is_empty()
+        self.vars.is_empty() && self.funcs.is_empty()
     }
 
     pub fn show(&self) {
-        let width = self.table.iter().map(|kv| kv.0.len()).max().unwrap_or(0);
-        Self::prt_name_value(width, "name", "value");
-        Self::prt_name_value(width, "----", "-----");
-        for (name, value) in &self.table {
-            Self::prt_name_value(width, name, value);
+        let pvars: bool = !self.vars.is_empty();
+        let pfuns: bool = !self.funcs.is_empty();
+        let newln: bool = pvars && pfuns;
+        if pvars {
+            self.vars.show();
         }
-    }
-
-    fn prt_name_value<Value: fmt::Display + ?Sized>(width: usize, name: &str, value: &Value) {
-        println!("{name:<width$}   {value}", name = name, width = width, value = value);
+        if newln {
+            println!();
+        }
+        if pfuns {
+            self.funcs.show();
+        }
     }
 }
 
@@ -77,27 +84,68 @@ impl Default for Environment {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::pcalc_code::Literal;
+    use crate::pcalc_function::*;
 
     #[test]
-    fn test_environment() {
+    fn test_environment_variables() {
         let mut env = Environment::new();
         assert_eq!(env.len(), 0);
         assert!(env.is_empty());
 
-        env.def("x", Value::from_num(10.0)).unwrap();
-        assert_eq!(env.get("x").unwrap(), Value::from_num(10.0));
+        env.def_var("x", Value::from_num(10.0)).unwrap();
+        assert_eq!(env.get_var("x").unwrap(), Value::from_num(10.0));
         assert_eq!(env.len(), 1);
         assert!(!env.is_empty());
 
-        env.set("x", Value::from_num(15.0)).unwrap();
-        assert_eq!(env.get("x").unwrap(), Value::from_num(15.0));
+        env.set_var("x", Value::from_num(15.0)).unwrap();
+        assert_eq!(env.get_var("x").unwrap(), Value::from_num(15.0));
         assert_eq!(env.len(), 1);
         assert!(!env.is_empty());
 
-        assert!(env.get("y").is_err());
+        assert!(env.get_var("y").is_err());
 
         env.reset();
         assert_eq!(env.len(), 0);
         assert!(env.is_empty());
+    }
+
+    #[test]
+    fn test_environment_functions() {
+        let mut env = Environment::new();
+        assert!(env.is_empty());
+        assert_eq!(env.len(), 0);
+
+        let fname = "foo";
+
+        env.def_func(fname, &FunctionPtr::new(Function::new(Parameters::new(), Expressions::new())));
+        assert!(env.get_func(fname).is_ok());
+        assert!(!env.is_empty());
+        assert_eq!(env.len(), 1);
+
+        env.def_func(fname, &FunctionPtr::new(Function::new(Parameters::new(), Expressions::new())));
+        assert!(env.get_func(fname).is_ok());
+        assert!(!env.is_empty());
+        assert_eq!(env.len(), 1);
+
+        assert!(env.get_func("bar").is_err());
+
+        env.reset();
+        assert!(env.is_empty());
+        assert_eq!(env.len(), 0);
+    }
+
+    #[test]
+    fn test_environment_eval_function() {
+        let mut env = Environment::new();
+
+        let params = Parameters::new();
+        let mut exprs = Expressions::new();
+        exprs.push(Box::new(Literal::new(Value::from_num(5.0))));
+
+        env.def_func("f", &FunctionPtr::new(Function::new(params, exprs)));
+
+        let func = FunctionPtr::clone(env.get_func("f").unwrap());
+        assert_eq!(func.eval(&mut env, &Arguments::new()).unwrap(), Value::from_num(5.0));
     }
 }

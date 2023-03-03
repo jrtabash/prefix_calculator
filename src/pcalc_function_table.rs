@@ -2,7 +2,7 @@ use crate::pcalc_function::*;
 use std::collections::HashMap;
 
 pub struct FunctionTable {
-    funcs: HashMap<String, Function>
+    funcs: HashMap<String, FunctionPtr>
 }
 
 impl FunctionTable {
@@ -18,11 +18,11 @@ impl FunctionTable {
         }
     }
 
-    pub fn def(&mut self, name: &str, func: Function) {
+    pub fn def(&mut self, name: &str, func: &FunctionPtr) {
         if let Some(f) = self.funcs.get_mut(name) {
-            *f = func;
+            *f = FunctionPtr::clone(func);
         } else {
-            self.funcs.insert(name.to_string(), func);
+            self.funcs.insert(name.to_string(), FunctionPtr::clone(func));
         }
     }
 
@@ -79,12 +79,12 @@ mod tests {
 
         let fname = "foo";
 
-        ftab.def(fname, Function::new(Parameters::new(), Expressions::new()));
+        ftab.def(fname, &FunctionPtr::new(Function::new(Parameters::new(), Expressions::new())));
         assert!(ftab.get(fname).is_ok());
         assert!(!ftab.is_empty());
         assert_eq!(ftab.len(), 1);
 
-        ftab.def(fname, Function::new(Parameters::new(), Expressions::new()));
+        ftab.def(fname, &FunctionPtr::new(Function::new(Parameters::new(), Expressions::new())));
         assert!(ftab.get(fname).is_ok());
         assert!(!ftab.is_empty());
         assert_eq!(ftab.len(), 1);
@@ -105,7 +105,7 @@ mod tests {
         let mut exprs = Expressions::new();
         exprs.push(Box::new(Literal::new(Value::from_num(5.0))));
 
-        ftab.def("f", Function::new(params, exprs));
+        ftab.def("f", &FunctionPtr::new(Function::new(params, exprs)));
 
         let func = ftab.get("f").unwrap();
         assert_eq!(func.eval(&mut env, &Arguments::new()).unwrap(), Value::from_num(5.0));

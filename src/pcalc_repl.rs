@@ -141,7 +141,7 @@ impl REPL {
                     if !self.batch {
                         println!("{}", value);
                     }
-                    self.env.set(&self.last_var, value).unwrap();
+                    self.env.set_var(&self.last_var, value).unwrap();
                     true
                 }
                 Err(err) => {
@@ -158,7 +158,7 @@ impl REPL {
 
     fn reset_env(&mut self) {
         self.env.reset();
-        self.env.def(&self.last_var, Value::from_num(0.0)).unwrap();
+        self.env.def_var(&self.last_var, Value::from_num(0.0)).unwrap();
     }
 
     fn toggle_batch(&mut self) {
@@ -171,7 +171,7 @@ impl REPL {
     }
 
     fn print_last(&self) {
-        match self.env.get(&self.last_var) {
+        match self.env.get_var(&self.last_var) {
             Ok(val) => println!("{}", val),
             Err(err) => eprintln!("ParseError: {}", err)
         };

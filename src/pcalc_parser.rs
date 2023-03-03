@@ -225,8 +225,8 @@ mod tests {
         test_parse_error(&mut parser, "var true 5", "Invalid variable definition name - 'true'");
 
         assert_eq!(env.len(), 2);
-        assert_eq!(env.get("flag").unwrap(), Value::from_bool(true));
-        assert_eq!(env.get("num").unwrap(), Value::from_num(10.0));
+        assert_eq!(env.get_var("flag").unwrap(), Value::from_bool(true));
+        assert_eq!(env.get_var("num").unwrap(), Value::from_num(10.0));
     }
 
     #[test]
@@ -244,8 +244,8 @@ mod tests {
         test_parse_error(&mut parser, "= true 5", "Invalid set variable name - 'true'");
 
         assert_eq!(env.len(), 2);
-        assert_eq!(env.get("flag").unwrap(), Value::from_bool(false));
-        assert_eq!(env.get("num").unwrap(), Value::from_num(20.0));
+        assert_eq!(env.get_var("flag").unwrap(), Value::from_bool(false));
+        assert_eq!(env.get_var("num").unwrap(), Value::from_num(20.0));
     }
 
     #[test]
@@ -259,8 +259,8 @@ mod tests {
         test_parse(&mut parser, &mut env, "num", Value::from_num(10.0));
 
         assert_eq!(env.len(), 2);
-        assert_eq!(env.get("flag").unwrap(), Value::from_bool(true));
-        assert_eq!(env.get("num").unwrap(), Value::from_num(10.0));
+        assert_eq!(env.get_var("flag").unwrap(), Value::from_bool(true));
+        assert_eq!(env.get_var("num").unwrap(), Value::from_num(10.0));
     }
 
     #[test]

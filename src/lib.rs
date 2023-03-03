@@ -9,3 +9,4 @@ pub mod pcalc_parser;
 pub mod pcalc_repl;
 pub mod pcalc_unary_ops;
 pub mod pcalc_value;
+pub mod pcalc_variable_table;
