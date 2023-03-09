@@ -1,5 +1,6 @@
 use crate::pcalc_binary_ops::bop2ftn;
-use crate::pcalc_code::{BinaryOp, CodePtr, DefVar, GetVar, Literal, SetVar, UnaryOp, XPrint};
+use crate::pcalc_code::{BinaryOp, CodePtr, DefVar, Defun, Funcall, GetVar, Literal, NoOp, SetVar, UnaryOp, XPrint};
+use crate::pcalc_function::{Arguments, Expressions, Parameters};
 use crate::pcalc_keywords as keywords;
 use crate::pcalc_lexer::{Lexer, LexerError, TokenType};
 use crate::pcalc_unary_ops::uop2ftn;
@@ -68,6 +69,11 @@ impl Parser {
             return Err(err.into());
         }
 
+        if self.lexer.starts_with(TokenType::Defun) && !self.lexer.ends_with(TokenType::End) {
+            // Partial function, wait for rest
+            return Ok(Box::new(NoOp::new()));
+        }
+
         match self.make_code() {
             Ok(code) => {
                 // Expect a full/complete expression.
@@ -85,6 +91,11 @@ impl Parser {
         }
     }
 
+    #[inline(always)]
+    pub fn is_empty(&self) -> bool {
+        self.lexer.is_empty()
+    }
+
     // --------------------------------------------------------------------------------
     // Private Functions
 
@@ -95,10 +106,13 @@ impl Parser {
                 TokenType::Const => self.make_const(&first.tname),
                 TokenType::Define => self.make_variable(),
                 TokenType::Assign => self.make_set_variable(),
+                TokenType::Defun => self.make_function(),
+                TokenType::Funcall => self.make_funcall(),
                 TokenType::BinaryOp => self.make_binary_op(&first.tname),
                 TokenType::UnaryOp => self.make_unary_op(&first.tname),
                 TokenType::SpecialFtn => self.make_special_ftn(&first.tname),
-                TokenType::Identifier => self.make_get_variable(&first.tname)
+                TokenType::Identifier => self.make_get_variable(&first.tname),
+                TokenType::Begin | TokenType::End => Err(ParserError::new("Invalid expression containing begin/end"))
             }
         } else {
             Err(ParserError::new("Expecting token"))
@@ -149,6 +163,60 @@ impl Parser {
             }
         } else {
             Err(ParserError::new("Incomplete set variable"))
+        }
+    }
+
+    fn make_function(&mut self) -> ParserResult {
+        if let Some(ftok) = self.lexer.next_token() {
+            self.lexer.check_reserved(&ftok, "function name definition")?;
+
+            let mut params = Parameters::new();
+            let mut body = Expressions::new();
+            loop {
+                if let Some(ptok) = self.lexer.next_token() {
+                    if ptok.ttype == TokenType::Begin {
+                        break;
+                    }
+                    self.lexer.check_reserved(&ptok, "function parameter definition")?;
+                    params.push(ptok.tname);
+                } else {
+                    return Err(ParserError::new("Invalid function definition/parameters"));
+                }
+            }
+            loop {
+                if let Some(ctok) = self.lexer.peek_token() {
+                    if ctok.ttype == TokenType::End {
+                        self.lexer.next_token();
+                        break;
+                    }
+                    body.push(self.make_code()?);
+                } else {
+                    return Err(ParserError::new("Invalid function definition/body"));
+                }
+            }
+            Ok(Box::new(Defun::new(ftok.tname, params, body)))
+        } else {
+            Err(ParserError::new("Invalid function definition"))
+        }
+    }
+
+    fn make_funcall(&mut self) -> ParserResult {
+        if let Some(ftok) = self.lexer.next_token() {
+            let mut args = Arguments::new();
+            loop {
+                if let Some(atok) = self.lexer.peek_token() {
+                    if atok.ttype == TokenType::End {
+                        self.lexer.next_token();
+                        break;
+                    }
+                    args.push(self.make_code()?);
+                } else {
+                    return Err(ParserError::new("Invalid function call/arguments"));
+                }
+            }
+            Ok(Box::new(Funcall::new(ftok.tname, args)))
+        } else {
+            Err(ParserError::new("Invalid function call"))
         }
     }
 
@@ -223,6 +291,7 @@ mod tests {
         test_parse_error(&mut parser, "var bad", "Expecting token");
         test_parse_error(&mut parser, "var", "Incomplete variable definition");
         test_parse_error(&mut parser, "var true 5", "Invalid variable definition name - 'true'");
+        test_parse_error(&mut parser, "var sqrt 5", "Invalid variable definition name - 'sqrt'");
 
         assert_eq!(env.len(), 2);
         assert_eq!(env.get_var("flag").unwrap(), Value::from_bool(true));
@@ -336,6 +405,45 @@ mod tests {
         test_parse(&mut parser, &mut env, "xprint true", Value::from_bool(true));
     }
 
+    #[test]
+    fn test_parser_defun() {
+        let mut env = Environment::new();
+        let mut parser = Parser::new();
+        test_parse(&mut parser, &mut env, "def add x y begin + x y end", Value::from_bool(true));
+        test_parse(&mut parser, &mut env, "def add x y\nbegin\n+ x y\nend", Value::from_bool(true));
+
+        test_parse_error(
+            &mut parser,
+            "def sqrt x begin ^ x 0.5 end",
+            "Invalid reserved function name definition - 'sqrt'"
+        );
+        test_parse_error(
+            &mut parser,
+            "def mysqrt tau begin ^ tau 0.5 end",
+            "Invalid reserved function parameter definition - 'tau'"
+        );
+    }
+
+    #[test]
+    fn test_parser_funcall() {
+        let mut env = Environment::new();
+        let mut parser = Parser::new();
+        test_parse(&mut parser, &mut env, "def bar1 begin 1 end", Value::from_bool(true));
+        test_parse(&mut parser, &mut env, "call bar1 end", Value::from_num(1.0));
+
+        test_parse(&mut parser, &mut env, "def add x y z begin + x + y z end", Value::from_bool(true));
+        test_parse(&mut parser, &mut env, "call add 1 2 3 end", Value::from_num(6.0));
+        test_parse(&mut parser, &mut env, "+ 1 call add + 2 3 1 - 5 3 end", Value::from_num(9.0));
+        test_parse(&mut parser, &mut env, "+ call add + 2 3 1 - 5 3 end 1", Value::from_num(9.0));
+
+        test_parse_error(&mut parser, "call bar1", "Invalid function call/arguments");
+        test_parse_error(&mut parser, "call add 1 2 3", "Invalid function call/arguments");
+
+        test_parse_eval_error(&mut parser, &mut env, "call bar1 1 end", "Invalid arguments length");
+        test_parse_eval_error(&mut parser, &mut env, "call add 1 2 end", "Invalid arguments length");
+        test_parse_eval_error(&mut parser, &mut env, "call sub 10 5 end", "Unknown function 'sub'");
+    }
+
     fn test_parse(parser: &mut Parser, env: &mut Environment, expr: &str, value: Value) {
         let code = parser.parse(expr).unwrap();
         assert_eq!(code.eval(env).unwrap(), value);
@@ -345,6 +453,14 @@ mod tests {
         match parser.parse(expr) {
             Ok(_) => assert!(false),
             Err(err) => assert_eq!(format!("{}", err), error)
-        }
+        };
+    }
+
+    fn test_parse_eval_error(parser: &mut Parser, env: &mut Environment, expr: &str, error: &str) {
+        let code = parser.parse(expr).unwrap();
+        match code.eval(env) {
+            Ok(_) => assert!(false),
+            Err(err) => assert_eq!(format!("{}", err), error)
+        };
     }
 }

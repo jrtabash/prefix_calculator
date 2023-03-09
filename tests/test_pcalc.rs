@@ -175,7 +175,32 @@ fn test_pcalc_file_multi_expr_line() {
 fn test_pcalc_empty_file() {
     PCalcCmd::new()
         .add_expr("xprint last")
-        .with_file("test_pcalc_empty_fie", "")
+        .with_file("test_pcalc_empty_file", "")
         .expect_output("0")
+        .run();
+}
+
+#[test]
+fn test_pcalc_expr_defun() {
+    PCalcCmd::new()
+        .add_expr("def add3 x y z begin + x + y z end")
+        .add_expr("xprint call add3 1 2 3 end")
+        .expect_output("6")
+        .run();
+}
+
+#[test]
+fn test_pcalc_file_defun() {
+    PCalcCmd::new()
+        .add_expr("xprint call add3 2 3 4 end")
+        .with_file(
+            "test_pcalc_file_defun",
+            "def add3 x y z\n\
+             begin\n\
+             var temp + x y\n\
+             + temp z\n\
+             end\n"
+        )
+        .expect_output("9")
         .run();
 }

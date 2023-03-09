@@ -9,6 +9,12 @@ pub type NameList<'a> = Vec<&'a str>;
 // Misc
 pub const DEFVAR: &str = "var";
 pub const SETVAR: &str = "=";
+pub const DEFUN: &str = "def";
+pub const FUNCALL: &str = "call";
+pub const BEGIN: &str = "begin";
+pub const END: &str = "end";
+
+// Literals and Consts
 pub const TRUE: &str = "true";
 pub const FALSE: &str = "false";
 pub const PI: &str = "pi";

@@ -51,7 +51,7 @@ impl FunctionTable {
         prt_row("Func", "Params");
         prt_row("----", "------");
         for (name, func) in &self.funcs {
-            prt_row(name, &format!("({})", func.parameters().join(", ")));
+            prt_row(name, &format!(" {}", func.parameters().join(", ")));
         }
     }
 }

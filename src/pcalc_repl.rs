@@ -15,6 +15,7 @@ const CMD_HELP: &str = ":help";
 
 pub struct REPL {
     prompt: String,
+    alt_prompt: String,
     last_var: String,
     env: Environment,
     parser: Parser,
@@ -25,6 +26,7 @@ impl REPL {
     pub fn new(batch: bool) -> Self {
         let mut repl = REPL {
             prompt: String::from("> "),
+            alt_prompt: String::from(">>> "),
             last_var: String::from("last"),
             env: Default::default(),
             parser: Default::default(),
@@ -92,7 +94,7 @@ impl REPL {
     fn prompt_and_read_line(&self, line: &mut String) -> bool {
         line.clear();
 
-        print!("{}", self.prompt);
+        print!("{}", if self.parser.is_empty() { &self.prompt } else { &self.alt_prompt });
         match io::stdout().flush() {
             Ok(()) => {}
             Err(err) => {
@@ -136,19 +138,25 @@ impl REPL {
 
     fn eval_and_print(&mut self, expr: &str) -> bool {
         match self.parser.parse(expr) {
-            Ok(code) => match code.eval(&mut self.env) {
-                Ok(value) => {
-                    if !self.batch {
-                        println!("{}", value);
+            Ok(code) => {
+                if !code.is_evaluable() {
+                    return true;
+                }
+
+                match code.eval(&mut self.env) {
+                    Ok(value) => {
+                        if !self.batch {
+                            println!("{}", value);
+                        }
+                        self.env.set_var(&self.last_var, value).unwrap();
+                        true
                     }
-                    self.env.set_var(&self.last_var, value).unwrap();
-                    true
+                    Err(err) => {
+                        eprintln!("EvalError: {}", err);
+                        false
+                    }
                 }
-                Err(err) => {
-                    eprintln!("EvalError: {}", err);
-                    false
-                }
-            },
+            }
             Err(err) => {
                 eprintln!("ParseError: {}", err);
                 false
@@ -196,8 +204,10 @@ impl REPL {
 
         print_list("   Binary Ops", &keywords::binary_ops());
         print_list("    Unary Ops", &keywords::unary_ops());
-        print_list(" Special Ftns", &keywords::special_ftns());
+        print_list("    Vars Mgmt", &vec![keywords::DEFVAR, keywords::SETVAR]);
+        print_list("    Ftns Mgmt", &vec![keywords::DEFUN, keywords::FUNCALL]);
         print_list("    Constants", &keywords::constants());
+        print_list(" Special Ftns", &keywords::special_ftns());
         print_list(" Special Vars", &vec![&self.last_var]);
         print_list("    REPL Cmds", &vec![CMD_ENV, CMD_RESET, CMD_QUIT, CMD_BATCH, CMD_LAST, CMD_HELP]);
     }

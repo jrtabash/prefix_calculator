@@ -2,7 +2,7 @@ use crate::pcalc_binary_ops::BinaryFtn;
 use crate::pcalc_environment::Environment;
 use crate::pcalc_function::{Arguments, Expressions, Function, FunctionPtr, Parameters};
 use crate::pcalc_unary_ops::UnaryFtn;
-use crate::pcalc_value::{Value, ValueResult};
+use crate::pcalc_value::{Value, ValueError, ValueResult};
 use std::fmt;
 
 // --------------------------------------------------------------------------------
@@ -10,6 +10,11 @@ use std::fmt;
 
 pub trait Code {
     fn eval(&self, env: &mut Environment) -> ValueResult;
+
+    #[inline(always)]
+    fn is_evaluable(&self) -> bool {
+        true
+    }
 }
 
 pub type CodePtr = Box<dyn Code>;
@@ -17,6 +22,29 @@ pub type CodePtr = Box<dyn Code>;
 impl fmt::Debug for dyn Code {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("[Code]").finish()
+    }
+}
+
+// --------------------------------------------------------------------------------
+// NoOp
+
+pub struct NoOp {}
+
+impl NoOp {
+    #[allow(clippy::new_without_default)]
+    pub fn new() -> Self {
+        NoOp {}
+    }
+}
+
+impl Code for NoOp {
+    fn eval(&self, _env: &mut Environment) -> ValueResult {
+        Err(ValueError::new("Eval called on noop"))
+    }
+
+    #[inline(always)]
+    fn is_evaluable(&self) -> bool {
+        false
     }
 }
 

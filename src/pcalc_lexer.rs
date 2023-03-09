@@ -17,6 +17,12 @@ impl LexerError {
         }
     }
 
+    pub fn reserved_name(what: &str, name: &str) -> Self {
+        LexerError {
+            error_msg: format!("Invalid reserved {} - '{}'", what, name)
+        }
+    }
+
     pub fn message(&self) -> &str {
         self.error_msg.as_str()
     }
@@ -34,7 +40,11 @@ pub enum TokenType {
     Const,
     Define,
     Assign,
-    Identifier
+    Identifier,
+    Defun,
+    Funcall,
+    Begin,
+    End
 }
 
 // --------------------------------------------------------------------------------
@@ -112,10 +122,40 @@ impl Lexer {
         }
     }
 
+    #[inline(always)]
+    pub fn is_reserved(&self, name: &str) -> bool {
+        self.table.get(name).is_some()
+    }
+
+    #[inline(always)]
+    pub fn check_reserved(&self, tok: &Token, what: &str) -> Result<(), LexerError> {
+        if self.is_reserved(&tok.tname) {
+            return Err(LexerError::reserved_name(what, &tok.tname));
+        }
+        Ok(())
+    }
+
+    #[inline(always)]
+    pub fn starts_with(&self, ttype: TokenType) -> bool {
+        !self.tokens.is_empty() && self.tokens[0].ttype == ttype
+    }
+
+    #[inline(always)]
+    pub fn ends_with(&self, ttype: TokenType) -> bool {
+        !self.tokens.is_empty() && self.tokens[self.tokens.len() - 1].ttype == ttype
+    }
+
+    #[inline(always)]
+    pub fn contains(&self, ttype: TokenType) -> bool {
+        !self.tokens.is_empty() && self.tokens.iter().any(|t| t.ttype == ttype)
+    }
+
+    #[inline(always)]
     pub fn clear(&mut self) {
         self.tokens.clear();
     }
 
+    #[inline(always)]
     pub fn is_empty(&self) -> bool {
         self.tokens.is_empty()
     }
@@ -150,6 +190,10 @@ impl Lexer {
         table.insert(String::from(keywords::FALSE), TokenType::Literal);
         table.insert(String::from(keywords::DEFVAR), TokenType::Define);
         table.insert(String::from(keywords::SETVAR), TokenType::Assign);
+        table.insert(String::from(keywords::DEFUN), TokenType::Defun);
+        table.insert(String::from(keywords::FUNCALL), TokenType::Funcall);
+        table.insert(String::from(keywords::BEGIN), TokenType::Begin);
+        table.insert(String::from(keywords::END), TokenType::End);
 
         table
     }
@@ -205,6 +249,10 @@ mod tests {
 
         assert_eq!(lexer.token_type(keywords::DEFVAR).unwrap(), TokenType::Define);
         assert_eq!(lexer.token_type(keywords::SETVAR).unwrap(), TokenType::Assign);
+        assert_eq!(lexer.token_type(keywords::DEFUN).unwrap(), TokenType::Defun);
+        assert_eq!(lexer.token_type(keywords::FUNCALL).unwrap(), TokenType::Funcall);
+        assert_eq!(lexer.token_type(keywords::BEGIN).unwrap(), TokenType::Begin);
+        assert_eq!(lexer.token_type(keywords::END).unwrap(), TokenType::End);
         assert_eq!(lexer.token_type(keywords::TRUE).unwrap(), TokenType::Literal);
         assert_eq!(lexer.token_type(keywords::FALSE).unwrap(), TokenType::Literal);
         assert_eq!(lexer.token_type("5.0").unwrap(), TokenType::Literal);
@@ -234,5 +282,24 @@ mod tests {
         lexer.clear();
         assert!(lexer.peek_token().is_none());
         assert!(lexer.is_empty());
+    }
+
+    #[test]
+    fn test_lexer_search() {
+        let tokstr = "def add x y begin + x y end";
+        let mut lexer = Lexer::new();
+        lexer.tokenize(&tokstr).unwrap();
+
+        assert!(lexer.starts_with(TokenType::Defun));
+        assert!(lexer.ends_with(TokenType::End));
+        assert!(lexer.contains(TokenType::Defun));
+        assert!(lexer.contains(TokenType::BinaryOp));
+        assert!(lexer.contains(TokenType::End));
+
+        assert!(!lexer.starts_with(TokenType::Define));
+        assert!(!lexer.ends_with(TokenType::Assign));
+        assert!(!lexer.contains(TokenType::Define));
+        assert!(!lexer.contains(TokenType::UnaryOp));
+        assert!(!lexer.contains(TokenType::Assign));
     }
 }
