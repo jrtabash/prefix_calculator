@@ -56,6 +56,16 @@ OPTIONS:
   neg, not,
   asnum, asbool
   ```
+- User Defined Functions
+  ```
+  define: def <name> [<params>] begin <body> end
+  call: call <name> [<args>] cend
+  ```
+  Note
+  ```
+  Function names must start with an alpha character,
+  and must contain only alphanumeric and underscore characters
+  ```
 - Special functions
   ```
   xprint - Execute and print expression
@@ -113,4 +123,49 @@ OPTIONS:
   > :last
   5
   >
+  ```
+- Example 3
+  ```
+  > def f2c f
+  >>> begin
+  >>> / * - f 32 5 9
+  >>> end
+  true
+  > 
+  > call f2c 54 cend
+  12.222222222222221
+  > 
+  > def temp_below f c
+  >>> begin
+  >>> < call f2c f cend c
+  >>> end
+  true
+  > 
+  > call temp_below 54 0 cend
+  false
+  > call temp_below 30 0 cend
+  true
+  > 
+  ```
+- Example 4
+  ```
+  > def dist x1 y1 x2 y2 
+  >>> begin
+  >>> var dx2 ^ - x2 x1 2
+  >>> var dy2 ^ - y2 y1 2
+  >>> sqrt + dx2 dy2
+  >>> end
+  true
+  > 
+  > call dist 3 4 6 8 cend
+  5
+  > 
+  > def near x1 y1 x2 y2 begin < call dist x1 y1 x2 y2 cend 1.0 end
+  true
+  > 
+  > call near 3 4 4 5 cend
+  false
+  > call near 3 4 3.5 4.5 cend
+  true
+  > 
   ```
