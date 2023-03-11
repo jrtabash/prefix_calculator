@@ -1,5 +1,6 @@
 use crate::pcalc_function::*;
 use std::collections::HashMap;
+use std::rc::Rc;
 
 pub struct FunctionTable {
     funcs: HashMap<String, FunctionPtr>
@@ -61,6 +62,10 @@ impl Default for FunctionTable {
         Self::new()
     }
 }
+
+// --------------------------------------------------------------------------------
+
+pub type FunctionTablePtr = Rc<FunctionTable>;
 
 // --------------------------------------------------------------------------------
 

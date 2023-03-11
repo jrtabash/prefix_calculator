@@ -112,7 +112,8 @@ impl Parser {
                 TokenType::UnaryOp => self.make_unary_op(&first.tname),
                 TokenType::SpecialFtn => self.make_special_ftn(&first.tname),
                 TokenType::Identifier => self.make_get_variable(&first.tname),
-                TokenType::Begin | TokenType::End => Err(ParserError::new("Invalid expression containing begin/end"))
+                TokenType::Begin => Err(ParserError::new("Invalid expression containing begin")),
+                TokenType::End | TokenType::CEnd => Err(ParserError::new("Invalid expression containing end"))
             }
         } else {
             Err(ParserError::new("Expecting token"))
@@ -205,7 +206,7 @@ impl Parser {
             let mut args = Arguments::new();
             loop {
                 if let Some(atok) = self.lexer.peek_token() {
-                    if atok.ttype == TokenType::End {
+                    if atok.ttype == TokenType::CEnd {
                         self.lexer.next_token();
                         break;
                     }
@@ -429,19 +430,19 @@ mod tests {
         let mut env = Environment::new();
         let mut parser = Parser::new();
         test_parse(&mut parser, &mut env, "def bar1 begin 1 end", Value::from_bool(true));
-        test_parse(&mut parser, &mut env, "call bar1 end", Value::from_num(1.0));
+        test_parse(&mut parser, &mut env, "call bar1 cend", Value::from_num(1.0));
 
         test_parse(&mut parser, &mut env, "def add x y z begin + x + y z end", Value::from_bool(true));
-        test_parse(&mut parser, &mut env, "call add 1 2 3 end", Value::from_num(6.0));
-        test_parse(&mut parser, &mut env, "+ 1 call add + 2 3 1 - 5 3 end", Value::from_num(9.0));
-        test_parse(&mut parser, &mut env, "+ call add + 2 3 1 - 5 3 end 1", Value::from_num(9.0));
+        test_parse(&mut parser, &mut env, "call add 1 2 3 cend", Value::from_num(6.0));
+        test_parse(&mut parser, &mut env, "+ 1 call add + 2 3 1 - 5 3 cend", Value::from_num(9.0));
+        test_parse(&mut parser, &mut env, "+ call add + 2 3 1 - 5 3 cend 1", Value::from_num(9.0));
 
         test_parse_error(&mut parser, "call bar1", "Invalid function call/arguments");
         test_parse_error(&mut parser, "call add 1 2 3", "Invalid function call/arguments");
 
-        test_parse_eval_error(&mut parser, &mut env, "call bar1 1 end", "Invalid arguments length");
-        test_parse_eval_error(&mut parser, &mut env, "call add 1 2 end", "Invalid arguments length");
-        test_parse_eval_error(&mut parser, &mut env, "call sub 10 5 end", "Unknown function 'sub'");
+        test_parse_eval_error(&mut parser, &mut env, "call bar1 1 cend", "Invalid arguments length");
+        test_parse_eval_error(&mut parser, &mut env, "call add 1 2 cend", "Invalid arguments length");
+        test_parse_eval_error(&mut parser, &mut env, "call sub 10 5 cend", "Unknown function 'sub'");
     }
 
     fn test_parse(parser: &mut Parser, env: &mut Environment, expr: &str, value: Value) {

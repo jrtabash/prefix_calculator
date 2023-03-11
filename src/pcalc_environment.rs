@@ -1,18 +1,25 @@
 use crate::pcalc_function::{FunctionPtr, FunctionResult};
-use crate::pcalc_function_table::FunctionTable;
+use crate::pcalc_function_table::{FunctionTable, FunctionTablePtr};
 use crate::pcalc_value::{Value, ValueResult};
 use crate::pcalc_variable_table::VariableTable;
 
 pub struct Environment {
     vars: VariableTable,
-    funcs: FunctionTable
+    funcs: FunctionTablePtr
 }
 
 impl Environment {
     pub fn new() -> Self {
         Environment {
             vars: VariableTable::new(),
-            funcs: FunctionTable::new()
+            funcs: FunctionTablePtr::new(FunctionTable::new())
+        }
+    }
+
+    pub fn with_parent_funcs(parent: &Environment) -> Self {
+        Environment {
+            vars: VariableTable::new(),
+            funcs: FunctionTablePtr::clone(&parent.funcs)
         }
     }
 
@@ -38,13 +45,13 @@ impl Environment {
 
     #[inline(always)]
     pub fn def_func(&mut self, name: &str, func: &FunctionPtr) {
-        self.funcs.def(name, func);
+        FunctionTablePtr::get_mut(&mut self.funcs).expect("Missing funcs table").def(name, func);
     }
 
     #[inline(always)]
     pub fn reset(&mut self) {
         self.vars.reset();
-        self.funcs.reset();
+        FunctionTablePtr::get_mut(&mut self.funcs).expect("Missing funcs table").reset();
     }
 
     #[inline(always)]

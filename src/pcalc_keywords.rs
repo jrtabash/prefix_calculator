@@ -13,6 +13,7 @@ pub const DEFUN: &str = "def";
 pub const FUNCALL: &str = "call";
 pub const BEGIN: &str = "begin";
 pub const END: &str = "end";
+pub const CEND: &str = "cend";
 
 // Literals and Consts
 pub const TRUE: &str = "true";

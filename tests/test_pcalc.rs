@@ -184,7 +184,7 @@ fn test_pcalc_empty_file() {
 fn test_pcalc_expr_defun() {
     PCalcCmd::new()
         .add_expr("def add3 x y z begin + x + y z end")
-        .add_expr("xprint call add3 1 2 3 end")
+        .add_expr("xprint call add3 1 2 3 cend")
         .expect_output("6")
         .run();
 }
@@ -192,7 +192,7 @@ fn test_pcalc_expr_defun() {
 #[test]
 fn test_pcalc_file_defun() {
     PCalcCmd::new()
-        .add_expr("xprint call add3 2 3 4 end")
+        .add_expr("xprint call add3 2 3 4 cend")
         .with_file(
             "test_pcalc_file_defun",
             "def add3 x y z\n\
@@ -202,5 +202,45 @@ fn test_pcalc_file_defun() {
              end\n"
         )
         .expect_output("9")
+        .run();
+}
+
+#[test]
+fn test_pcalc_funcalls() {
+    PCalcCmd::new()
+        .add_expr("xprint call add4 2 3 4 6 cend")
+        .with_file(
+            "test_pcalc_funcalls",
+            "def add x y begin + x y end\n\
+             \n\
+             def add4 a b c d\n\
+             begin\n\
+             + call add a b cend call add c d cend\n\
+             end\n"
+        )
+        .expect_output("15")
+        .run();
+}
+
+#[test]
+fn test_pcalc_funcalls2() {
+    PCalcCmd::new()
+        .add_expr("xprint call near 3 4 4 5 cend")
+        .add_expr("xprint call near 3 4 3.5 4.5 cend")
+        .with_file(
+            "test_pcalc_funcalls2",
+            "def dist x1 y1 x2 y2\n\
+             begin\n\
+             var dx2 ^ - x2 x1 2\n\
+             var dy2 ^ - y2 y1 2\n\
+             sqrt + dx2 dy2\n\
+             end\n\
+             \n\
+             def near x1 y1 x2 y2\n\
+             begin\n\
+             <= call dist x1 y1 x2 y2 cend 1.0\n\
+             end\n"
+        )
+        .expect_output("false\\ntrue")
         .run();
 }

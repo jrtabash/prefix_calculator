@@ -44,7 +44,8 @@ pub enum TokenType {
     Defun,
     Funcall,
     Begin,
-    End
+    End,
+    CEnd
 }
 
 // --------------------------------------------------------------------------------
@@ -194,6 +195,7 @@ impl Lexer {
         table.insert(String::from(keywords::FUNCALL), TokenType::Funcall);
         table.insert(String::from(keywords::BEGIN), TokenType::Begin);
         table.insert(String::from(keywords::END), TokenType::End);
+        table.insert(String::from(keywords::CEND), TokenType::CEnd);
 
         table
     }
@@ -253,6 +255,7 @@ mod tests {
         assert_eq!(lexer.token_type(keywords::FUNCALL).unwrap(), TokenType::Funcall);
         assert_eq!(lexer.token_type(keywords::BEGIN).unwrap(), TokenType::Begin);
         assert_eq!(lexer.token_type(keywords::END).unwrap(), TokenType::End);
+        assert_eq!(lexer.token_type(keywords::CEND).unwrap(), TokenType::CEnd);
         assert_eq!(lexer.token_type(keywords::TRUE).unwrap(), TokenType::Literal);
         assert_eq!(lexer.token_type(keywords::FALSE).unwrap(), TokenType::Literal);
         assert_eq!(lexer.token_type("5.0").unwrap(), TokenType::Literal);

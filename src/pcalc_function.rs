@@ -60,7 +60,7 @@ impl Function {
             return Err(ValueError::new("Invalid arguments length"));
         }
 
-        let mut func_env: Environment = Default::default();
+        let mut func_env = Environment::with_parent_funcs(call_env);
         for (param, arg) in zip(&self.params, args) {
             func_env.def_var(param, arg.eval(call_env)?)?;
         }
