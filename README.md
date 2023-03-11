@@ -58,8 +58,8 @@ OPTIONS:
   ```
 - User Defined Functions
   ```
-  define: def <name> [<params>] begin <body> end
-  call: call <name> [<args>] cend
+  define: def <name> <params> begin <body> end
+  call: call <name> <args> cend
   ```
   Note
   ```
