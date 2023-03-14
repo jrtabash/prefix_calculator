@@ -55,6 +55,11 @@ impl Function {
         &self.params
     }
 
+    #[inline(always)]
+    pub fn body(&self) -> &Expressions {
+        &self.body
+    }
+
     pub fn eval(&self, call_env: &mut Environment, args: &Arguments) -> ValueResult {
         if args.len() != self.params.len() {
             return Err(ValueError::new("Invalid arguments length"));

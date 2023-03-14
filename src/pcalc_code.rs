@@ -1,6 +1,7 @@
 use crate::pcalc_binary_ops::BinaryFtn;
 use crate::pcalc_environment::Environment;
 use crate::pcalc_function::{Arguments, Expressions, Function, FunctionPtr, Parameters};
+use crate::pcalc_recursive_check::*;
 use crate::pcalc_unary_ops::UnaryFtn;
 use crate::pcalc_value::{Value, ValueError, ValueResult};
 use std::fmt;
@@ -14,6 +15,16 @@ pub trait Code {
     #[inline(always)]
     fn is_evaluable(&self) -> bool {
         true
+    }
+
+    #[inline(always)]
+    fn is_funcall(&self) -> bool {
+        false
+    }
+
+    #[inline(always)]
+    fn get_name(&self) -> Option<&str> {
+        None
     }
 }
 
@@ -86,6 +97,11 @@ impl Code for DefVar {
         let value = self.code.eval(env)?;
         env.def_var(&self.name, value)
     }
+
+    #[inline(always)]
+    fn get_name(&self) -> Option<&str> {
+        Some(&self.name)
+    }
 }
 
 // --------------------------------------------------------------------------------
@@ -107,6 +123,11 @@ impl Code for SetVar {
         let value = self.code.eval(env)?;
         env.set_var(&self.name, value)
     }
+
+    #[inline(always)]
+    fn get_name(&self) -> Option<&str> {
+        Some(&self.name)
+    }
 }
 
 // --------------------------------------------------------------------------------
@@ -125,6 +146,11 @@ impl GetVar {
 impl Code for GetVar {
     fn eval(&self, env: &mut Environment) -> ValueResult {
         env.get_var(&self.name)
+    }
+
+    #[inline(always)]
+    fn get_name(&self) -> Option<&str> {
+        Some(&self.name)
     }
 }
 
@@ -212,8 +238,16 @@ impl Defun {
 
 impl Code for Defun {
     fn eval(&self, env: &mut Environment) -> ValueResult {
+        check_self_recursive(&self.name, &self.func)?;
+        check_cross_recursive(&self.name, &self.func, env)?;
+
         env.def_func(&self.name, &self.func);
         Ok(Value::from_bool(true))
+    }
+
+    #[inline(always)]
+    fn get_name(&self) -> Option<&str> {
+        Some(&self.name)
     }
 }
 
@@ -235,6 +269,16 @@ impl Code for Funcall {
     fn eval(&self, env: &mut Environment) -> ValueResult {
         let func = FunctionPtr::clone(env.get_func(&self.name)?);
         func.eval(env, &self.args)
+    }
+
+    #[inline(always)]
+    fn is_funcall(&self) -> bool {
+        true
+    }
+
+    #[inline(always)]
+    fn get_name(&self) -> Option<&str> {
+        Some(&self.name)
     }
 }
 

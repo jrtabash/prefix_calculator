@@ -6,6 +6,7 @@ pub mod pcalc_function_table;
 pub mod pcalc_keywords;
 pub mod pcalc_lexer;
 pub mod pcalc_parser;
+pub mod pcalc_recursive_check;
 pub mod pcalc_repl;
 pub mod pcalc_unary_ops;
 pub mod pcalc_value;
