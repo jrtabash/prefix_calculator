@@ -122,8 +122,8 @@ impl Parser {
 
     fn make_literal(&self, tname: &str) -> ParserResult {
         let value = match tname {
-            "true" => Value::from_bool(true),
-            "false" => Value::from_bool(false),
+            keywords::TRUE => Value::from_bool(true),
+            keywords::FALSE => Value::from_bool(false),
             _ => Value::from_num(tname.parse::<f64>()?)
         };
         Ok(Box::new(Literal::new(value)))
@@ -131,9 +131,9 @@ impl Parser {
 
     fn make_const(&self, tname: &str) -> ParserResult {
         let value = match tname {
-            "pi" => Some(Value::from_num(consts::PI)),
-            "tau" => Some(Value::from_num(consts::TAU)),
-            "e" => Some(Value::from_num(consts::E)),
+            keywords::PI => Some(Value::from_num(consts::PI)),
+            keywords::TAU => Some(Value::from_num(consts::TAU)),
+            keywords::E => Some(Value::from_num(consts::E)),
             _ => None
         };
         if let Some(val) = value {
