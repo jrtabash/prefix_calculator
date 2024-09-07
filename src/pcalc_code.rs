@@ -87,7 +87,7 @@ pub struct DefVar {
 }
 
 impl DefVar {
-    pub fn new(name: String, code: CodePtr) -> DefVar {
+    pub fn new(name: String, code: CodePtr) -> Self {
         DefVar { name, code }
     }
 }
@@ -113,7 +113,7 @@ pub struct SetVar {
 }
 
 impl SetVar {
-    pub fn new(name: String, code: CodePtr) -> SetVar {
+    pub fn new(name: String, code: CodePtr) -> Self {
         SetVar { name, code }
     }
 }
@@ -138,7 +138,7 @@ pub struct GetVar {
 }
 
 impl GetVar {
-    pub fn new(name: String) -> GetVar {
+    pub fn new(name: String) -> Self {
         GetVar { name }
     }
 }
@@ -164,7 +164,7 @@ pub struct BinaryOp {
 }
 
 impl BinaryOp {
-    pub fn new(op_ftn: BinaryFtn, lhs_arg: CodePtr, rhs_arg: CodePtr) -> BinaryOp {
+    pub fn new(op_ftn: BinaryFtn, lhs_arg: CodePtr, rhs_arg: CodePtr) -> Self {
         BinaryOp { op_ftn, lhs_arg, rhs_arg }
     }
 }
@@ -186,7 +186,7 @@ pub struct UnaryOp {
 }
 
 impl UnaryOp {
-    pub fn new(op_ftn: UnaryFtn, arg: CodePtr) -> UnaryOp {
+    pub fn new(op_ftn: UnaryFtn, arg: CodePtr) -> Self {
         UnaryOp { op_ftn, arg }
     }
 }
@@ -206,7 +206,7 @@ pub struct XPrint {
 }
 
 impl XPrint {
-    pub fn new(expr: CodePtr) -> XPrint {
+    pub fn new(expr: CodePtr) -> Self {
         XPrint { expr }
     }
 }
