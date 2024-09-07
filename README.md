@@ -26,7 +26,7 @@ OPTIONS:
 - Numeric (e.g. 10.5) and boolean (e.g. true, false) values
 - Constants:
   ```
-  pi, tau, e
+  pi, tau, e, phi
   ```
 - User variables
   ```

@@ -134,6 +134,7 @@ impl Parser {
             keywords::PI => Some(Value::from_num(consts::PI)),
             keywords::TAU => Some(Value::from_num(consts::TAU)),
             keywords::E => Some(Value::from_num(consts::E)),
+            keywords::PHI => Some(Value::from_num(1.618033988749894848204586834365638118f64)),
             _ => None
         };
         if let Some(val) = value {
@@ -280,6 +281,7 @@ mod tests {
         test_parse(&mut parser, &mut env, "pi", Value::from_num(consts::PI));
         test_parse(&mut parser, &mut env, "tau", Value::from_num(consts::TAU));
         test_parse(&mut parser, &mut env, "e", Value::from_num(consts::E));
+        test_parse(&mut parser, &mut env, "phi", Value::from_num(1.6180339887498949f64));
     }
 
     #[test]

@@ -21,6 +21,7 @@ pub const FALSE: &str = "false";
 pub const PI: &str = "pi";
 pub const TAU: &str = "tau";
 pub const E: &str = "e";
+pub const PHI: &str = "phi";
 
 // Binary Ops
 pub const ADD: &str = "+";
@@ -107,5 +108,5 @@ pub fn special_ftns() -> NameList<'static> {
 
 #[inline(always)]
 pub fn constants() -> NameList<'static> {
-    vec![PI, TAU, E]
+    vec![PI, TAU, E, PHI]
 }
