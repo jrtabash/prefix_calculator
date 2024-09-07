@@ -134,7 +134,7 @@ impl Parser {
             keywords::PI => Some(Value::from_num(consts::PI)),
             keywords::TAU => Some(Value::from_num(consts::TAU)),
             keywords::E => Some(Value::from_num(consts::E)),
-            keywords::PHI => Some(Value::from_num(1.618033988749894848204586834365638118f64)),
+            keywords::PHI => Some(Value::from_num(1.618033988749895f64)),
             _ => None
         };
         if let Some(val) = value {
