@@ -21,7 +21,7 @@ fn main() {
 fn parse_args() -> Arguments {
     #[rustfmt::skip]
     let pargs = App::new("Prefix Calculator")
-        .version("0.5.0")
+        .version("0.6.0")
         .about("Command line prefix calculator")
         .arg(Arg::with_name("force_int")
              .short("i")
