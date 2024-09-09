@@ -1,5 +1,5 @@
 use crate::pcalc_binary_ops::bop2ftn;
-use crate::pcalc_code::{BinaryOp, CodePtr, DefVar, Defun, Funcall, GetVar, Literal, NoOp, SetVar, UnaryOp, XPrint};
+use crate::pcalc_code::{BinaryOp, CodePtr, Conditional, DefVar, Defun, Funcall, GetVar, Literal, NoOp, SetVar, UnaryOp, XPrint};
 use crate::pcalc_function::{Arguments, Expressions, Parameters};
 use crate::pcalc_keywords as keywords;
 use crate::pcalc_lexer::{Lexer, LexerError, TokenType};
@@ -113,7 +113,11 @@ impl Parser {
                 TokenType::SpecialFtn => self.make_special_ftn(&first.tname),
                 TokenType::Identifier => self.make_get_variable(&first.tname),
                 TokenType::Begin => Err(ParserError::new("Invalid expression containing begin")),
-                TokenType::End | TokenType::CEnd => Err(ParserError::new("Invalid expression containing end"))
+                TokenType::End | TokenType::CEnd => Err(ParserError::new("Invalid expression containing end")),
+                TokenType::If => self.make_conditional(&first.tname),
+                TokenType::Then => Err(ParserError::new("Invalid expression containing then")),
+                TokenType::Else => Err(ParserError::new("Invalid expression containing else")),
+                TokenType::Fi => Err(ParserError::new("Invalid expression containing fi"))
             }
         } else {
             Err(ParserError::new("Expecting token"))
@@ -224,6 +228,27 @@ impl Parser {
 
     fn make_get_variable(&self, name: &str) -> ParserResult {
         Ok(Box::new(GetVar::new(String::from(name))))
+    }
+
+    fn make_conditional(&mut self, _name: &str) -> ParserResult {
+        let cond = self.make_conditional_part(TokenType::Then)?;
+        let true_code = self.make_conditional_part(TokenType::Else)?;
+        let false_code = self.make_conditional_part(TokenType::Fi)?;
+        Ok(Box::new(Conditional::new(cond, true_code, false_code)))
+    }
+
+    fn make_conditional_part(&mut self, ends_with: TokenType) -> ParserResult {
+        let part = self.make_code()?;
+        if let Some(tok) = self.lexer.peek_token() {
+            if tok.ttype == ends_with {
+                self.lexer.next_token();
+                Ok(part)
+            } else {
+                Err(ParserError::new(&format!("Invalid if expression - expecting '{}'", ends_with.to_string())))
+            }
+        } else {
+            Err(ParserError::new(&format!("Incomplete if expression - missing '{}'", ends_with.to_string())))
+        }
     }
 
     fn make_binary_op(&mut self, name: &str) -> ParserResult {
@@ -445,6 +470,30 @@ mod tests {
         test_parse_eval_error(&mut parser, &mut env, "call bar1 1 cend", "Invalid arguments length");
         test_parse_eval_error(&mut parser, &mut env, "call add 1 2 cend", "Invalid arguments length");
         test_parse_eval_error(&mut parser, &mut env, "call sub 10 5 cend", "Unknown function 'sub'");
+    }
+
+    #[test]
+    fn test_parser_conditional() {
+        let mut env = Environment::new();
+        let mut parser = Parser::new();
+        test_parse(&mut parser, &mut env, "var x 5", Value::from_num(5.0));
+        test_parse(&mut parser, &mut env, "var y 10", Value::from_num(10.0));
+
+        test_parse(&mut parser, &mut env, "if true ? 1 : 2 fi", Value::from_num(1.0));
+        test_parse(&mut parser, &mut env, "if false ? 1 : 2 fi", Value::from_num(2.0));
+
+        test_parse(&mut parser, &mut env, "if <= x 5 ? x : y fi", Value::from_num(5.0));
+        test_parse(&mut parser, &mut env, "if > x 5 ? x : y fi", Value::from_num(10.0));
+
+        test_parse(&mut parser, &mut env, "if <= x 5 ? = x + x 1 : = y + y 1 fi", Value::from_num(6.0));
+        test_parse(&mut parser, &mut env, "x", Value::from_num(6.0));
+
+        test_parse(&mut parser, &mut env, "if < y 10 ? = x + x 1 : = y + y 1 fi", Value::from_num(11.0));
+        test_parse(&mut parser, &mut env, "y", Value::from_num(11.0));
+
+        test_parse_error(&mut parser, "if true 1 fi", "Invalid if expression - expecting 'Then'");
+        test_parse_error(&mut parser, "if true ? 1 fi", "Invalid if expression - expecting 'Else'");
+        test_parse_error(&mut parser, "if true ? 1 : 0", "Incomplete if expression - missing 'Fi'");
     }
 
     fn test_parse(parser: &mut Parser, env: &mut Environment, expr: &str, value: Value) {

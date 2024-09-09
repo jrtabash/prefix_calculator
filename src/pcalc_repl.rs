@@ -206,6 +206,7 @@ impl REPL {
         print_list("    Unary Ops", &keywords::unary_ops());
         print_list("    Vars Mgmt", &vec![keywords::DEFVAR, keywords::SETVAR]);
         print_list("    Ftns Mgmt", &vec![keywords::DEFUN, keywords::FUNCALL]);
+        print_list("    Ctrl Flow", &vec![keywords::IF]);
         print_list("    Constants", &keywords::constants());
         print_list(" Special Ftns", &keywords::special_ftns());
         print_list(" Special Vars", &vec![&self.last_var]);

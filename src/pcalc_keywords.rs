@@ -14,6 +14,10 @@ pub const FUNCALL: &str = "call";
 pub const BEGIN: &str = "begin";
 pub const END: &str = "end";
 pub const CEND: &str = "cend";
+pub const IF: &str = "if";
+pub const THEN: &str = "?";
+pub const ELSE: &str = ":";
+pub const FI: &str = "fi";
 
 // Literals and Consts
 pub const TRUE: &str = "true";

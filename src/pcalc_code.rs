@@ -283,6 +283,31 @@ impl Code for Funcall {
 }
 
 // --------------------------------------------------------------------------------
+// Cond - condition
+
+pub struct Conditional {
+    cond: CodePtr,
+    true_code: CodePtr,
+    false_code: CodePtr
+}
+
+impl Conditional {
+    pub fn new(cond: CodePtr, true_code: CodePtr, false_code: CodePtr) -> Self {
+        Conditional { cond, true_code, false_code }
+    }
+}
+
+impl Code for Conditional {
+    fn eval(&self, env: &mut Environment) -> ValueResult {
+        if self.cond.eval(env)?.as_bool() {
+            Ok(self.true_code.eval(env)?)
+        } else {
+            Ok(self.false_code.eval(env)?)
+        }
+    }
+}
+
+// --------------------------------------------------------------------------------
 // Unit Tests
 
 #[cfg(test)]
@@ -413,5 +438,42 @@ mod tests {
 
         let funcall = Funcall::new("my_add".to_string(), args);
         assert_eq!(funcall.eval(&mut call_env).unwrap(), Value::from_num(10.0));
+    }
+
+    #[test]
+    fn test_conditional() {
+        let mut env = Environment::new();
+        env.def_var("check3", Value::from_bool(true)).unwrap();
+        env.def_var("check4", Value::from_bool(false)).unwrap();
+        env.def_var("true_code", Value::from_num(3.0)).unwrap();
+        env.def_var("false_code", Value::from_num(4.0)).unwrap();
+
+        let cond = Conditional::new(
+            Box::new(Literal::new(Value::from_bool(true))),
+            Box::new(Literal::new(Value::from_num(1.0))),
+            Box::new(Literal::new(Value::from_num(2.0)))
+        );
+        assert_eq!(cond.eval(&mut env).unwrap(), Value::from_num(1.0));
+
+        let cond = Conditional::new(
+            Box::new(Literal::new(Value::from_bool(false))),
+            Box::new(Literal::new(Value::from_num(1.0))),
+            Box::new(Literal::new(Value::from_num(2.0)))
+        );
+        assert_eq!(cond.eval(&mut env).unwrap(), Value::from_num(2.0));
+
+        let cond = Conditional::new(
+            Box::new(GetVar::new(String::from("check3"))),
+            Box::new(GetVar::new(String::from("true_code"))),
+            Box::new(GetVar::new(String::from("false_code")))
+        );
+        assert_eq!(cond.eval(&mut env).unwrap(), Value::from_num(3.0));
+
+        let cond = Conditional::new(
+            Box::new(GetVar::new(String::from("check4"))),
+            Box::new(GetVar::new(String::from("true_code"))),
+            Box::new(GetVar::new(String::from("false_code")))
+        );
+        assert_eq!(cond.eval(&mut env).unwrap(), Value::from_num(4.0));
     }
 }

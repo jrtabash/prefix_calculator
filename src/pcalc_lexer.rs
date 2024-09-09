@@ -45,7 +45,35 @@ pub enum TokenType {
     Funcall,
     Begin,
     End,
-    CEnd
+    CEnd,
+    If,
+    Then,
+    Else,
+    Fi
+}
+
+impl TokenType {
+    pub fn to_string(&self) -> &str {
+        match self {
+            TokenType::BinaryOp => "BinaryOp",
+            TokenType::UnaryOp => "UnaryOp",
+            TokenType::SpecialFtn => "SpecialFtn",
+            TokenType::Literal => "Literal",
+            TokenType::Const => "Const",
+            TokenType::Define => "Define",
+            TokenType::Assign => "Assign",
+            TokenType::Identifier => "Identifier",
+            TokenType::Defun => "Defun",
+            TokenType::Funcall => "Funcall",
+            TokenType::Begin => "Begin",
+            TokenType::End => "End",
+            TokenType::CEnd => "CEnd",
+            TokenType::If => "If",
+            TokenType::Then => "Then",
+            TokenType::Else => "Else",
+            TokenType::Fi => "Fi"
+        }
+    }
 }
 
 // --------------------------------------------------------------------------------
@@ -196,6 +224,10 @@ impl Lexer {
         table.insert(String::from(keywords::BEGIN), TokenType::Begin);
         table.insert(String::from(keywords::END), TokenType::End);
         table.insert(String::from(keywords::CEND), TokenType::CEnd);
+        table.insert(String::from(keywords::IF), TokenType::If);
+        table.insert(String::from(keywords::THEN), TokenType::Then);
+        table.insert(String::from(keywords::ELSE), TokenType::Else);
+        table.insert(String::from(keywords::FI), TokenType::Fi);
 
         table
     }
@@ -256,6 +288,10 @@ mod tests {
         assert_eq!(lexer.token_type(keywords::BEGIN).unwrap(), TokenType::Begin);
         assert_eq!(lexer.token_type(keywords::END).unwrap(), TokenType::End);
         assert_eq!(lexer.token_type(keywords::CEND).unwrap(), TokenType::CEnd);
+        assert_eq!(lexer.token_type(keywords::IF).unwrap(), TokenType::If);
+        assert_eq!(lexer.token_type(keywords::THEN).unwrap(), TokenType::Then);
+        assert_eq!(lexer.token_type(keywords::ELSE).unwrap(), TokenType::Else);
+        assert_eq!(lexer.token_type(keywords::FI).unwrap(), TokenType::Fi);
         assert_eq!(lexer.token_type(keywords::TRUE).unwrap(), TokenType::Literal);
         assert_eq!(lexer.token_type(keywords::FALSE).unwrap(), TokenType::Literal);
         assert_eq!(lexer.token_type("5.0").unwrap(), TokenType::Literal);

@@ -56,6 +56,10 @@ OPTIONS:
   neg, not,
   asnum, asbool
   ```
+- Control Flow
+  ```
+  Conditional: if <condition> ? <true_code> : <false_code> fi
+  ```
 - User Defined Functions
   ```
   define: def <name> <params> begin <body> end
@@ -168,4 +172,20 @@ OPTIONS:
   > call near 3 4 3.5 4.5 cend
   true
   > 
+  ```
+- Example 5
+  ```
+  > var x 5
+  5
+  > var y 10
+  10
+  > if <= x 5 ? = x + x 1 : = y + y 1 fi
+  6
+  > x
+  6
+  > if > x 10 ? = x + x 1 : = y + y 1 fi
+  11
+  > y
+  11
+  >
   ```
