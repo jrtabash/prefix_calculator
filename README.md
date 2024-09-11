@@ -58,7 +58,8 @@ OPTIONS:
   ```
 - Control Flow
   ```
-  Conditional: if <condition> ? <true_code> : <false_code> fi
+  If: if <condition> ? <true_code> fi
+  If/Else: if <condition> ? <true_code> : <false_code> fi
   ```
 - User Defined Functions
   ```
@@ -187,5 +188,9 @@ OPTIONS:
   11
   > y
   11
+  > if < x 10 ? x fi
+  6
+  > if > x 10 ? x fi
+  false
   >
   ```

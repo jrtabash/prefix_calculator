@@ -231,18 +231,26 @@ impl Parser {
     }
 
     fn make_conditional(&mut self, _name: &str) -> ParserResult {
-        let cond = self.make_conditional_part(TokenType::Then)?;
-        let true_code = self.make_conditional_part(TokenType::Else)?;
-        let false_code = self.make_conditional_part(TokenType::Fi)?;
-        Ok(Box::new(Conditional::new(cond, true_code, false_code)))
+        let (cond, _) = self.make_conditional_part(TokenType::Then, false)?;
+        let (true_code, stop) = self.make_conditional_part(TokenType::Else, true)?;
+
+        if stop {
+            Ok(Box::new(Conditional::when(cond, true_code)))
+        } else {
+            let (false_code, _) = self.make_conditional_part(TokenType::Fi, false)?;
+            Ok(Box::new(Conditional::new(cond, true_code, false_code)))
+        }
     }
 
-    fn make_conditional_part(&mut self, ends_with: TokenType) -> ParserResult {
+    fn make_conditional_part(&mut self, ends_with: TokenType, or_fi: bool) -> Result<(CodePtr, bool), ParserError> {
         let part = self.make_code()?;
         if let Some(tok) = self.lexer.peek_token() {
             if tok.ttype == ends_with {
                 self.lexer.next_token();
-                Ok(part)
+                Ok((part, false))
+            } else if or_fi && tok.ttype == TokenType::Fi {
+                self.lexer.next_token();
+                Ok((part, true))
             } else {
                 Err(ParserError::new(&format!("Invalid if expression - expecting '{}'", ends_with.to_string())))
             }
@@ -492,8 +500,31 @@ mod tests {
         test_parse(&mut parser, &mut env, "y", Value::from_num(11.0));
 
         test_parse_error(&mut parser, "if true 1 fi", "Invalid if expression - expecting 'Then'");
-        test_parse_error(&mut parser, "if true ? 1 fi", "Invalid if expression - expecting 'Else'");
         test_parse_error(&mut parser, "if true ? 1 : 0", "Incomplete if expression - missing 'Fi'");
+        test_parse_error(&mut parser, "if true ? 1 0 fi", "Invalid if expression - expecting 'Else'");
+    }
+
+    #[test]
+    fn test_parser_conditional_when() {
+        let mut env = Environment::new();
+        let mut parser = Parser::new();
+        test_parse(&mut parser, &mut env, "var x 5", Value::from_num(5.0));
+        test_parse(&mut parser, &mut env, "var y 10", Value::from_num(10.0));
+
+        test_parse(&mut parser, &mut env, "if true ? 1 fi", Value::from_num(1.0));
+        test_parse(&mut parser, &mut env, "if false ? 1 fi", Value::from_bool(false));
+
+        test_parse(&mut parser, &mut env, "if <= x 5 ? x fi", Value::from_num(5.0));
+        test_parse(&mut parser, &mut env, "if > x 5 ? x fi", Value::from_bool(false));
+
+        test_parse(&mut parser, &mut env, "if <= x 5 ? = x + x 1 fi", Value::from_num(6.0));
+        test_parse(&mut parser, &mut env, "x", Value::from_num(6.0));
+
+        test_parse(&mut parser, &mut env, "if < y 10 ? = y + y 1 fi", Value::from_bool(false));
+        test_parse(&mut parser, &mut env, "y", Value::from_num(10.0));
+
+        test_parse_error(&mut parser, "if true fi", "Invalid if expression - expecting 'Then'");
+        test_parse_error(&mut parser, "if true ? 1", "Incomplete if expression - missing 'Else'");
     }
 
     fn test_parse(parser: &mut Parser, env: &mut Environment, expr: &str, value: Value) {

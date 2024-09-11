@@ -295,6 +295,14 @@ impl Conditional {
     pub fn new(cond: CodePtr, true_code: CodePtr, false_code: CodePtr) -> Self {
         Conditional { cond, true_code, false_code }
     }
+
+    pub fn when(cond: CodePtr, true_code: CodePtr) -> Self {
+        Conditional {
+            cond,
+            true_code,
+            false_code: Box::new(Literal::new(Value::from_bool(false)))
+        }
+    }
 }
 
 impl Code for Conditional {
@@ -475,5 +483,25 @@ mod tests {
             Box::new(GetVar::new(String::from("false_code")))
         );
         assert_eq!(cond.eval(&mut env).unwrap(), Value::from_num(4.0));
+    }
+
+    #[test]
+    fn test_conditional_when() {
+        let mut env = Environment::new();
+        env.def_var("check3", Value::from_bool(true)).unwrap();
+        env.def_var("check4", Value::from_bool(false)).unwrap();
+        env.def_var("true_code", Value::from_num(3.0)).unwrap();
+
+        let cond = Conditional::when(Box::new(Literal::new(Value::from_bool(true))), Box::new(Literal::new(Value::from_num(1.0))));
+        assert_eq!(cond.eval(&mut env).unwrap(), Value::from_num(1.0));
+
+        let cond = Conditional::when(Box::new(Literal::new(Value::from_bool(false))), Box::new(Literal::new(Value::from_num(1.0))));
+        assert_eq!(cond.eval(&mut env).unwrap(), Value::from_bool(false));
+
+        let cond = Conditional::when(Box::new(GetVar::new(String::from("check3"))), Box::new(GetVar::new(String::from("true_code"))));
+        assert_eq!(cond.eval(&mut env).unwrap(), Value::from_num(3.0));
+
+        let cond = Conditional::when(Box::new(GetVar::new(String::from("check4"))), Box::new(GetVar::new(String::from("true_code"))));
+        assert_eq!(cond.eval(&mut env).unwrap(), Value::from_bool(false));
     }
 }
