@@ -283,7 +283,7 @@ impl Code for Funcall {
 }
 
 // --------------------------------------------------------------------------------
-// Cond - condition
+// Conditional - If/Else
 
 pub struct Conditional {
     cond: CodePtr,
