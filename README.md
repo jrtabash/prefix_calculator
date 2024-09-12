@@ -87,6 +87,7 @@ OPTIONS:
   :batch - Toggle batch mode
   :last - Show last value
   :help - Print list of available operators and constants
+  :examples - Print examples
   ```
   Variables
   ```
