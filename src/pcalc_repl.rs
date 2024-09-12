@@ -1,5 +1,5 @@
 use crate::pcalc_environment::Environment;
-use crate::pcalc_keywords as keywords;
+use crate::pcalc_help as help;
 use crate::pcalc_parser::Parser;
 use crate::pcalc_value::Value;
 use std::fs::File;
@@ -12,6 +12,7 @@ const CMD_QUIT: &str = ":quit";
 const CMD_BATCH: &str = ":batch";
 const CMD_LAST: &str = ":last";
 const CMD_HELP: &str = ":help";
+const CMD_EXAMPLES: &str = ":examples";
 
 pub struct REPL {
     prompt: String,
@@ -186,31 +187,10 @@ impl REPL {
     }
 
     fn print_help(&self) {
-        fn print_list(title: &str, kws: &keywords::NameList) {
-            print!("{}: ", title);
-
-            let mut count: u32 = 0;
-            for sym in kws {
-                count += 1;
-                if count > 8 {
-                    print!("\n               ");
-                    count = 0;
-                }
-                print!("{} ", sym);
-            }
-
-            println!();
-        }
-
-        print_list("   Binary Ops", &keywords::binary_ops());
-        print_list("    Unary Ops", &keywords::unary_ops());
-        print_list("    Vars Mgmt", &vec![keywords::DEFVAR, keywords::SETVAR]);
-        print_list("    Ftns Mgmt", &vec![keywords::DEFUN, keywords::FUNCALL]);
-        print_list("    Ctrl Flow", &vec![keywords::IF]);
-        print_list("    Constants", &keywords::constants());
-        print_list(" Special Ftns", &keywords::special_ftns());
-        print_list(" Special Vars", &vec![&self.last_var]);
-        print_list("    REPL Cmds", &vec![CMD_ENV, CMD_RESET, CMD_QUIT, CMD_BATCH, CMD_LAST, CMD_HELP]);
+        help::print_help(
+            &vec![&self.last_var],
+            &vec![CMD_ENV, CMD_RESET, CMD_QUIT, CMD_BATCH, CMD_LAST, CMD_HELP, CMD_EXAMPLES]
+        );
     }
 
     fn try_repl_command(&mut self, cmd: &str) -> bool {
@@ -228,6 +208,9 @@ impl REPL {
             return true;
         } else if cmd == CMD_HELP {
             self.print_help();
+            return true;
+        } else if cmd == CMD_EXAMPLES {
+            help::print_examples();
             return true;
         }
 

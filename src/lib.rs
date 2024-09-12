@@ -3,6 +3,7 @@ pub mod pcalc_code;
 pub mod pcalc_environment;
 pub mod pcalc_function;
 pub mod pcalc_function_table;
+pub mod pcalc_help;
 pub mod pcalc_keywords;
 pub mod pcalc_lexer;
 pub mod pcalc_parser;
